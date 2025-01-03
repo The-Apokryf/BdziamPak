@@ -14,43 +14,50 @@ public class GitService(ILogger<GitService> logger, BdziamPakDirectory bdziamPak
     {
         try
         {
-            var targetDir = new DirectoryInfo(Path.Combine(bdziamPakDirectory.PaksDirectory.FullName, $"{metadata.BdziamPakId}@{metadata.Version}"));
+            var targetDir = new DirectoryInfo(Path.Combine(bdziamPakDirectory.PaksDirectory.FullName,
+                $"{metadata.BdziamPakId}@{metadata.Version}"));
             if (!targetDir.Exists)
             {
                 targetDir.Create();
             }
 
             if (metadata.Repository == null) return targetDir;
-            
-            logger.LogDebug("Cloning repository {RepoUrl}", metadata.Repository);
-            var tempDir = new DirectoryInfo(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
-            Repository.Clone(metadata.Repository.Url, tempDir.FullName, GetCloneOptions(metadata.Repository.Url));
 
-            if (metadata == null)
+            logger.LogDebug("Cloning repository {RepoUrl}", metadata.Repository.Url);
+            var tempDir = new DirectoryInfo(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
+            Repository.Clone(metadata.Repository.Url, tempDir.FullName, GetCloneOptions(metadata.Repository));
+
+            using (var repo = new Repository(tempDir.FullName))
             {
-                logger.LogError("Failed to get package metadata from repository {RepoUrl}", metadata.Repository);
-                throw new InvalidOperationException("Failed to get package metadata");
+                var commit = repo.Lookup<Commit>(metadata.Repository.CommitHash);
+                if (commit == null)
+                {
+                    logger.LogError("Commit {CommitHash} not found in repository {RepoUrl}",
+                        metadata.Repository.CommitHash, metadata.Repository.Url);
+                    throw new InvalidOperationException($"Commit {metadata.Repository.CommitHash} not found");
+                }
+
+                Commands.Checkout(repo, commit);
             }
 
-          
-
             CopyFilesRecursively(tempDir, targetDir);
-            logger.LogDebug("Successfully cloned repository {RepoUrl} to {TargetDir}",  metadata.Repository, targetDir.FullName);
+            logger.LogDebug("Successfully cloned repository {RepoUrl} to {TargetDir}", metadata.Repository.Url,
+                targetDir.FullName);
 
             return targetDir;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error cloning repository {RepoUrl}",  metadata.Repository);
+            logger.LogError(ex, "Error cloning repository {RepoUrl}", metadata.Repository.Url);
             throw;
         }
     }
 
-    private CloneOptions GetCloneOptions(string repoUrl)
+    private CloneOptions GetCloneOptions(BdziamPakRepositoryReference reference)
     {
         var options = new CloneOptions();
 
-        var credentials = gitCredentials.GetCredentialsForRepo(repoUrl);
+        var credentials = gitCredentials.GetCredentialsForRepo(reference.Url);
         if (credentials != null)
         {
             options.FetchOptions.CredentialsProvider = (url, user, cred) =>
