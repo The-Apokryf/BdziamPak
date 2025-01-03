@@ -40,7 +40,7 @@ public class NuGetDependencyResolver(ILogger<NuGetDownloadService> logger)
             if (IsRuntimePackage(new SourcePackageDependencyInfo(packageId, version, Array.Empty<PackageDependency>(), true, null)))
             {
                 logger.LogInformation("Package {PackageId} is a runtime package, skipping dependency resolution", packageId);
-                return Enumerable.Empty<SourcePackageDependencyInfo>();
+                return [];
             }
 
             logger.LogDebug("Creating source cache context for dependency resolution");

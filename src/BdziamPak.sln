@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BdziamPak", "BdziamPak\BdziamPak.csproj", "{1607EB6D-59C7-45A0-A81F-952158B13085}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BdziamPak.Contracts", "BdziamPak.Contracts\BdziamPak.Contracts.csproj", "{C0746390-983D-482D-894C-EDE63A4C5F93}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1607EB6D-59C7-45A0-A81F-952158B13085}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1607EB6D-59C7-45A0-A81F-952158B13085}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1607EB6D-59C7-45A0-A81F-952158B13085}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1607EB6D-59C7-45A0-A81F-952158B13085}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0746390-983D-482D-894C-EDE63A4C5F93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0746390-983D-482D-894C-EDE63A4C5F93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0746390-983D-482D-894C-EDE63A4C5F93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0746390-983D-482D-894C-EDE63A4C5F93}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

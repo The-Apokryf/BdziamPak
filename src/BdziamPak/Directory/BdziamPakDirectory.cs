@@ -1,5 +1,6 @@
-﻿using BdziamPak.NuGetPackages.Cache;
-using BdziamPak.Packages.Index.Local;
+﻿using BdziamPak.Configuration;
+using BdziamPak.NuGetPackages.Cache;
+using Microsoft.Extensions.Logging;
 
 namespace BdziamPak.Structure;
 ///  <summary>
@@ -22,9 +23,14 @@ namespace BdziamPak.Structure;
 ///  </remarks>
 public class BdziamPakDirectory
 {
-
-    public BdziamPakDirectory(string directoryName)
+    public BdziamPakDirectory(BdziamPakConfiguration bdziamPakConfiguration, ILogger logger)
     {
+        RootDirectory = new DirectoryInfo(bdziamPakConfiguration.BdziamPakPath);
+        if(!RootDirectory.Exists)
+            RootDirectory.Create();
+
+        CacheDirectory = new DirectoryInfo(Path.Combine(RootDirectory.FullName, "Cache"));
+        
     }
 
     /// <summary>
@@ -39,6 +45,12 @@ public class BdziamPakDirectory
     /// Directory that contains all extracted BdziamPaks
     /// </summary>
     public DirectoryInfo PaksDirectory { get; }
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    public DirectoryInfo RootDirectory { get;  }
+    
     /// <summary>
     /// Allows to manage sources of the directory
     /// </summary>

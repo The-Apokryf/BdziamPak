@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="7e12dcef-d7f4-4062-a6c5-93d231c280e6" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/.idea.Bdziam/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BdziamPak/BdziamPak.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/BdziamPak/BdziamPak.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BdziamPak/Extensions/BdziamPakExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BdziamPak/Extensions/BdziamPakExtensions.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BdziamPak/NuGetPackages/Dependencies/NuGetDependencyResolver.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BdziamPak/NuGetPackages/Dependencies/NuGetDependencyResolver.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BdziamPak/NuGetPackages/Model/NuGetDownloadProgress.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BdziamPak/NuGetPackages/Download/Model/NuGetDownloadProgress.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BdziamPak/NuGetPackages/NuGetDownloadService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BdziamPak/NuGetPackages/Download/NuGetDownloadService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BdziamPak/Packaging/PackageManager.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BdziamPak/Sources/Model/BdziamPakIndex.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BdziamPak/Sources/Model/BdziamPakSourceIndex.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BdziamPak/Sources/Model/BdziamPakSource.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BdziamPak/Sources/Sources.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BdziamPak/Sources/Sources.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BdziamPak/Structure/BdziamPakDirectory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/BdziamPak/Directory/BdziamPakDirectory.cs" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "pmikstacki"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/pmikstacki/BdziamPak.git",
+    "accountId": "41e7bd10-0665-4095-9a14-1bf314071ef1"
+  }
+}]]></component>
+  <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 7
+}]]></component>
+  <component name="ProjectId" id="2r4XTh2RxNQvn3yDkN60WERwmm7" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="7e12dcef-d7f4-4062-a6c5-93d231c280e6" name="Changes" comment="" />
+      <created>1735819332060</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1735819332060</updated>
+      <workItem from="1735819333313" duration="7000000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
+  <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
+  <component name="VcsManagerConfiguration">
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+</project>

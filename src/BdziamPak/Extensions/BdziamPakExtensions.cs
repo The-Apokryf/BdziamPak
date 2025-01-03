@@ -1,4 +1,6 @@
 ﻿using BdziamPak.Configuration;
+using BdziamPak.NuGetPackages;
+using BdziamPak.NuGetPackages.Dependencies;
 using BdziamPak.Packages.Packaging;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,6 +12,12 @@ public static class BdziamPakExtensions
     {
         var config = new BdziamPakConfiguration(".bdziampak");
         configuration.Invoke(config);
+        
+        
+        services.AddSingleton<NuGetDownloadService>();
+        services.AddSingleton<NuGetDependencyResolver>();
+        
+        
         return services.AddSingleton(sp => config);
     }
 }

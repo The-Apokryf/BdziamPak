@@ -1,0 +1,19 @@
+﻿namespace BdziamPak.Packages.Index.Model;
+/// <summary>
+/// Class representing json file structure - index of BdziamPak packages
+/// </summary>
+public class BdziamPakSourceIndex
+{
+    /// <summary>
+    /// Name of the source
+    /// </summary>
+    public string Name { get; set; }
+    /// <summary>
+    /// Description of the source
+    /// </summary>
+    public string Description { get; set; }
+    /// <summary>
+    /// References to the BdziamPaks
+    /// </summary>
+    public List<BdziamPakReference> Paks { get; set; }
+}
