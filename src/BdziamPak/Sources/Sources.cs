@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.Text.Json;
 using BdziamPak.Packages.Index.Model;
+using BdziamPak.Packages.Packaging.Model;
 using Microsoft.Extensions.Logging;
 
 public class Sources : IDisposable
@@ -209,14 +210,14 @@ public class Sources : IDisposable
         }
     }
 
-    public async Task<IReadOnlyList<(BdziamPakReference Package, string SourceName)>> SearchAsync(
+    public async Task<IReadOnlyList<(BdziamPakMetadata Package, string SourceName)>> SearchAsync(
         string searchTerm, 
         StringComparison comparison = StringComparison.OrdinalIgnoreCase)
     {
         _logger.LogDebug("Starting search for term: {SearchTerm}", searchTerm);
         await RefreshCacheIfNeededAsync();
 
-        var results = new ConcurrentBag<(BdziamPakReference, string)>();
+        var results = new ConcurrentBag<(BdziamPakMetadata, string)>();
         var sources = await ListSourcesAsync();
         
         _logger.LogDebug("Searching across {Count} sources", sources.Count);

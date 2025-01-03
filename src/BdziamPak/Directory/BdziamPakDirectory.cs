@@ -12,14 +12,13 @@ namespace BdziamPak.Structure;
 /// ├── Sources/                     # Directory for files
 ///     │   ├── Sources.json             # File that contains all Sources registered
 ///     │   ├── {SourceName}.json        # Cached index data for each source
-///     ├── Cache/                       # Cache for downloaded NuGet packages
-///     │   ├── {BdziamPakName}@{Version}/ #  folder for a specific BdziamPak 
-///     │       ├── Lib/            # Contains extracted nuget packages assigned to a given BdziamPak
-///     ├── Paks/                        # Extracted BdziamPaks
-///     │   ├── {BdziamPakName}@{Version}/ #  folder for a specific BdziamPak (contains cloned repo from git and Lib folder with extracted dependencies
-///     │       ├── Lib/            # Contains extracted nuget packages assigned to a given BdziamPak
-///     │       ├── (other git contents)           # Contains extracted nuget packages assigned to a given BdziamPak
-///     │       ├── pak.json      # Contains Metadata about given Pak
+/// ├── Cache/                       # Cache for downloaded NuGet packages
+/// ├── Paks/                        # Extracted BdziamPaks
+/// │   ├── {BdziamPakId}@{Version}/ #  folder for a specific BdziamPak (contains cloned repo from git and Lib folder with extracted dependencies
+/// │       ├── Lib/            # Contains extracted nuget packages assigned to a given BdziamPak
+/// │       ├── (other git contents)           # Contains extracted nuget packages assigned to a given BdziamPak
+/// │       ├── pak.json      # Contains Metadata about given Pak
+/// ├── GitCredentials.json # Contains Git credentials
 ///  </remarks>
 public class BdziamPakDirectory
 {
@@ -30,6 +29,16 @@ public class BdziamPakDirectory
             RootDirectory.Create();
 
         CacheDirectory = new DirectoryInfo(Path.Combine(RootDirectory.FullName, "Cache"));
+        SourcesDirectory = new DirectoryInfo(Path.Combine(RootDirectory.FullName, "Sources"));
+        PaksDirectory = new DirectoryInfo(Path.Combine(RootDirectory.FullName, "Paks"));
+
+        if(!CacheDirectory.Exists)
+            CacheDirectory.Create();
+        if(!SourcesDirectory.Exists)
+            SourcesDirectory.Create();
+        if(!PaksDirectory.Exists)
+            PaksDirectory.Create();
+
         
     }
 
@@ -47,16 +56,7 @@ public class BdziamPakDirectory
     public DirectoryInfo PaksDirectory { get; }
     
     /// <summary>
-    /// 
+    /// Root directory containing all BdziamPak files and folders
     /// </summary>
     public DirectoryInfo RootDirectory { get;  }
-    
-    /// <summary>
-    /// Allows to manage sources of the directory
-    /// </summary>
-    public Sources Sources { get; }
-    /// <summary>
-    /// Nuget Cache
-    /// </summary>
-    public NuGetCache NuGetCache { get; }
 }
