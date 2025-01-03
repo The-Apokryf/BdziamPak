@@ -14,30 +14,34 @@ public class GitService(ILogger<GitService> logger, BdziamPakDirectory bdziamPak
     {
         try
         {
-            logger.LogDebug("Cloning repository {RepoUrl}", metadata.RepositoryUrl);
-            var tempDir = new DirectoryInfo(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
-            Repository.Clone(metadata.RepositoryUrl, tempDir.FullName, GetCloneOptions(metadata.RepositoryUrl));
-
-            if (metadata == null)
-            {
-                logger.LogError("Failed to get package metadata from repository {RepoUrl}", metadata.RepositoryUrl);
-                throw new InvalidOperationException("Failed to get package metadata");
-            }
-
             var targetDir = new DirectoryInfo(Path.Combine(bdziamPakDirectory.PaksDirectory.FullName, $"{metadata.BdziamPakId}@{metadata.Version}"));
             if (!targetDir.Exists)
             {
                 targetDir.Create();
             }
 
+            if (metadata.Repository == null) return targetDir;
+            
+            logger.LogDebug("Cloning repository {RepoUrl}", metadata.Repository);
+            var tempDir = new DirectoryInfo(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
+            Repository.Clone(metadata.Repository.Url, tempDir.FullName, GetCloneOptions(metadata.Repository.Url));
+
+            if (metadata == null)
+            {
+                logger.LogError("Failed to get package metadata from repository {RepoUrl}", metadata.Repository);
+                throw new InvalidOperationException("Failed to get package metadata");
+            }
+
+          
+
             CopyFilesRecursively(tempDir, targetDir);
-            logger.LogDebug("Successfully cloned repository {RepoUrl} to {TargetDir}",  metadata.RepositoryUrl, targetDir.FullName);
+            logger.LogDebug("Successfully cloned repository {RepoUrl} to {TargetDir}",  metadata.Repository, targetDir.FullName);
 
             return targetDir;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error cloning repository {RepoUrl}",  metadata.RepositoryUrl);
+            logger.LogError(ex, "Error cloning repository {RepoUrl}",  metadata.Repository);
             throw;
         }
     }

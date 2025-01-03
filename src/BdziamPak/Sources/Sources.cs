@@ -226,7 +226,7 @@ public class Sources : IDisposable
         await Parallel.ForEachAsync(sources, async (source, ct) =>
         {
             var matches = source.Paks
-                .Where(pak => pak.BdziamPakId.Contains(searchTerm, comparison))
+                .Where(pak => pak.BdziamPakId.Contains(searchTerm, comparison) || (pak.Description?.Contains(searchTerm, comparison) ?? false))
                 .ToList();
 
             if (matches.Any())

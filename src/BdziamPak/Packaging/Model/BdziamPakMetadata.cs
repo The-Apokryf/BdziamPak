@@ -29,7 +29,7 @@ public class BdziamPakMetadata
     /// <summary>
     /// Repository Url of the BdziamPak
     /// </summary>
-    public string? RepositoryUrl { get; set; }
+    public BdziamPakRepositoryReference? Repository { get; set; }
     
     /// <summary>
     /// Other BdziamPaks that this BdziamPak depends on
