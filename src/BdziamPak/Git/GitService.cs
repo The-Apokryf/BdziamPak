@@ -2,14 +2,15 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using BdziamPak.Packages.Packaging.Model;
+using BdziamPak.Structure;
 using LibGit2Sharp;
 using Microsoft.Extensions.Logging;
 
 namespace BdziamPak.Git;
 
-public class GitService(GitCredentials gitCredentials, ILogger logger)
+public class GitService(ILogger<GitService> logger, BdziamPakDirectory bdziamPakDirectory, GitCredentials gitCredentials)
 {
-    public DirectoryInfo CloneRepo(BdziamPakMetadata metadata, DirectoryInfo paksDirectory)
+    public DirectoryInfo CloneRepo(BdziamPakMetadata metadata)
     {
         try
         {
@@ -23,7 +24,7 @@ public class GitService(GitCredentials gitCredentials, ILogger logger)
                 throw new InvalidOperationException("Failed to get package metadata");
             }
 
-            var targetDir = new DirectoryInfo(Path.Combine(paksDirectory.FullName, $"{metadata.BdziamPakId}@{metadata.Version}"));
+            var targetDir = new DirectoryInfo(Path.Combine(bdziamPakDirectory.PaksDirectory.FullName, $"{metadata.BdziamPakId}@{metadata.Version}"));
             if (!targetDir.Exists)
             {
                 targetDir.Create();

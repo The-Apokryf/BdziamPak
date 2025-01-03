@@ -1,5 +1,6 @@
 ﻿using BdziamPak.NuGetPackages.Logging;
 using BdziamPak.NuGetPackages.Model;
+using BdziamPak.Packages.NuGet;
 using Microsoft.Extensions.Logging;
 using NuGet.Configuration;
 using NuGet.Packaging.Core;
@@ -8,7 +9,7 @@ using NuGet.Versioning;
 
 namespace BdziamPak.NuGetPackages;
 
-public class NuGetDownloadService(ILogger<NuGetDownloadService> logger)
+public class NuGetDownloadService(ILogger<NuGetDownloadService> logger, NuGetCache cache)
 {
     private readonly NuGet.Common.ILogger _logger = new NuGetLoggerWrapper(logger);
 

@@ -1,5 +1,7 @@
-﻿using BdziamPak.Configuration;
-using BdziamPak.NuGetPackages.Cache;
+﻿using System.Text.Json;
+using BdziamPak.Configuration;
+using BdziamPak.Git;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace BdziamPak.Structure;
@@ -22,8 +24,11 @@ namespace BdziamPak.Structure;
 ///  </remarks>
 public class BdziamPakDirectory
 {
-    public BdziamPakDirectory(BdziamPakConfiguration bdziamPakConfiguration, ILogger logger)
+    private readonly IServiceProvider _serviceProvider;
+
+    public BdziamPakDirectory(BdziamPakConfiguration bdziamPakConfiguration, IServiceProvider serviceProvider)
     {
+        _serviceProvider = serviceProvider;
         RootDirectory = new DirectoryInfo(bdziamPakConfiguration.BdziamPakPath);
         if(!RootDirectory.Exists)
             RootDirectory.Create();

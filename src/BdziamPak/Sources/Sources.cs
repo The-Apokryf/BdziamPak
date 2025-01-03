@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Text.Json;
 using BdziamPak.Packages.Index.Model;
 using BdziamPak.Packages.Packaging.Model;
+using BdziamPak.Structure;
 using Microsoft.Extensions.Logging;
 
 public class Sources : IDisposable
@@ -17,9 +18,9 @@ public class Sources : IDisposable
     private readonly TimeSpan _cacheExpiration = TimeSpan.FromMinutes(5);
     private readonly SemaphoreSlim _cacheLock = new(1, 1);
 
-    public Sources(DirectoryInfo sourcesDirectory, ILogger logger)
+    public Sources(BdziamPakDirectory bdziamPakDirectory, ILogger logger)
     {
-        _sourcesDirectory = sourcesDirectory;
+        _sourcesDirectory = bdziamPakDirectory.SourcesDirectory;
         _logger = logger;
         _httpClient = new HttpClient();
         _jsonOptions = new JsonSerializerOptions
@@ -28,7 +29,7 @@ public class Sources : IDisposable
         };
         _sourceCache = new ConcurrentDictionary<string, (BdziamPakSourceIndex, DateTime)>();
         
-        _logger.LogDebug("Sources initialized with directory: {Directory}", sourcesDirectory.FullName);
+        _logger.LogDebug("Sources initialized with directory: {Directory}", _sourcesDirectory.FullName);
     }
 
     private async Task<BdziamPakSourceIndex?> LoadSourceFileAsync(FileInfo file)

@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using BdziamPak.Git.Model;
+using BdziamPak.Structure;
 using Microsoft.Extensions.Logging;
 
 namespace BdziamPak.Git;
@@ -10,13 +11,13 @@ public class GitCredentials
     private readonly string _credentialsFilePath;
     private readonly ILogger _logger;
 
-    public GitCredentials(string filePath, ILogger logger)
+    public GitCredentials(BdziamPakDirectory directory, ILogger<GitCredentials> logger)
     {
         _logger = logger;
         try
         {
             _logger.LogDebug("Initializing Git Credentials");
-            _credentialsFilePath = filePath;
+            _credentialsFilePath = Path.Combine(directory.RootDirectory.FullName, "GitCredentials.json");
             if (!File.Exists(_credentialsFilePath))
             {
                 _logger.LogDebug("Credentials file does not exist. Creating a new one.");
