@@ -211,14 +211,14 @@ public class Sources : IDisposable
         }
     }
 
-    public async Task<IReadOnlyList<(BdziamPakMetadata Package, string SourceName)>> SearchAsync(
+    public async Task<IReadOnlyList<(BdziamPakMetadata Package, string SourceName)?>> SearchAsync(
         string searchTerm, 
         StringComparison comparison = StringComparison.OrdinalIgnoreCase)
     {
         _logger.LogDebug("Starting search for term: {SearchTerm}", searchTerm);
         await RefreshCacheIfNeededAsync();
 
-        var results = new ConcurrentBag<(BdziamPakMetadata, string)>();
+        var results = new ConcurrentBag<(BdziamPakMetadata, string)?>();
         var sources = await ListSourcesAsync();
         
         _logger.LogDebug("Searching across {Count} sources", sources.Count);
@@ -245,7 +245,7 @@ public class Sources : IDisposable
         _logger.LogInformation("Search completed. Found {Count} total matches for term: {SearchTerm}", 
             finalResults.Count, searchTerm);
         
-        return finalResults;
+        return finalResults ;
     }
 
     public void Dispose()
