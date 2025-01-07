@@ -7,9 +7,9 @@ namespace BdziamPak.Git;
 
 public class GitCredentials
 {
-    private Dictionary<string, GitCredential> _credentials = new();
     private readonly string _credentialsFilePath;
     private readonly ILogger _logger;
+    private readonly object _lockObject = new();
 
     public GitCredentials(BdziamPakDirectory directory, ILogger<GitCredentials> logger)
     {
@@ -21,10 +21,9 @@ public class GitCredentials
             if (!File.Exists(_credentialsFilePath))
             {
                 _logger.LogDebug("Credentials file does not exist. Creating a new one.");
-                SaveCredentials();
+                SaveCredentials(new Dictionary<string, GitCredential>());
                 return;
             }
-            ReloadCredentials();
             _logger.LogDebug("Initialization complete");
         }
         catch (Exception ex)
@@ -34,12 +33,20 @@ public class GitCredentials
         }
     }
 
-    private void SaveCredentials()
+    private void SaveCredentials(Dictionary<string, GitCredential> credentials)
     {
         try
         {
             _logger.LogDebug("Saving credentials to file {FilePath}", _credentialsFilePath);
-            File.WriteAllText(_credentialsFilePath, JsonSerializer.Serialize(_credentials, new JsonSerializerOptions { WriteIndented = true }));
+            lock (_lockObject)
+            {
+                using (FileStream fs = new FileStream(_credentialsFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
+                using (StreamWriter writer = new StreamWriter(fs))
+                {
+                    string json = JsonSerializer.Serialize(credentials, new JsonSerializerOptions { WriteIndented = true });
+                    writer.Write(json);
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -48,18 +55,25 @@ public class GitCredentials
         }
     }
 
-    private void ReloadCredentials()
+    private Dictionary<string, GitCredential> LoadCredentials()
     {
         try
         {
-            _logger.LogDebug("Reloading credentials from file {FilePath}", _credentialsFilePath);
-            var fileContent = File.ReadAllText(_credentialsFilePath);
-            _credentials = JsonSerializer.Deserialize<Dictionary<string, GitCredential>>(fileContent) ?? new Dictionary<string, GitCredential>();
-            _logger.LogDebug("Successfully reloaded credentials");
+            _logger.LogDebug("Loading credentials from file {FilePath}", _credentialsFilePath);
+            lock (_lockObject)
+            {
+                using (FileStream fs = new FileStream(_credentialsFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (StreamReader reader = new StreamReader(fs))
+                {
+                    string fileContent = reader.ReadToEnd();
+                    return JsonSerializer.Deserialize<Dictionary<string, GitCredential>>(fileContent) 
+                           ?? new Dictionary<string, GitCredential>();
+                }
+            }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error reloading credentials from file {FilePath}", _credentialsFilePath);
+            _logger.LogError(ex, "Error loading credentials from file {FilePath}", _credentialsFilePath);
             throw;
         }
     }
@@ -69,8 +83,9 @@ public class GitCredentials
         try
         {
             _logger.LogDebug("Fetching credentials for repo {RepoUrl}", url);
-            ReloadCredentials();
-            if (_credentials.TryGetValue(url, out var creds))
+            var credentials = LoadCredentials();
+            
+            if (credentials.TryGetValue(url, out var creds))
             {
                 _logger.LogDebug("Credentials found for repo {RepoUrl}", url);
                 return creds;

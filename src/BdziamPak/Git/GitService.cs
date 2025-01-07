@@ -75,6 +75,7 @@ public class GitService(ILogger<GitService> logger, BdziamPakDirectory bdziamPak
     {
         foreach (var dir in source.GetDirectories())
         {
+            if(dir.Name == ".git") continue;
             var targetSubDir = target.CreateSubdirectory(dir.Name);
             CopyFilesRecursively(dir, targetSubDir);
         }

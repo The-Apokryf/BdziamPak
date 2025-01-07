@@ -20,6 +20,6 @@ public class TestLogger<T> : ILogger<T>, IDisposable
 
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
     {
-        _outputHelper.WriteLine(formatter(state, exception));
+        _outputHelper.WriteLine($"[{logLevel}, {typeof(T).Name}]:{formatter(state, exception)}");
     }
 }

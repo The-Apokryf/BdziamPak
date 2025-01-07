@@ -1,51 +1,63 @@
-﻿using BdziamPak.NuGetPackages.Logging;
+﻿using System.ComponentModel;
+using BdziamPak.NuGetPackages.Logging;
 using BdziamPak.NuGetPackages.Model;
 using BdziamPak.Packages.NuGet;
+using Downloader;
 using Microsoft.Extensions.Logging;
 using NuGet.Configuration;
 using NuGet.Packaging.Core;
+using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 
 namespace BdziamPak.NuGetPackages;
 
-public class NuGetDownloadService(ILogger<NuGetDownloadService> logger, NuGetCache cache)
+public class NuGetDownloadService
 {
-    private readonly NuGet.Common.ILogger _logger = new NuGetLoggerWrapper(logger);
+    private readonly NuGet.Common.ILogger _nugetLogger;
+    private readonly ILogger<NuGetDownloadService> _logger;
+    private readonly DownloadService _downloader;
+    private NuGetDownloadProgress? _progress;
+    public NuGetDownloadService(ILogger<NuGetDownloadService> logger, NuGetCache cache, DownloadService downloader)
+    {
+        _logger = logger;
+        _downloader = downloader;
+        _nugetLogger = new NuGetLoggerWrapper(logger);
+    }
 
     public async Task<IPackageSearchMetadata?> SearchPackageAsync(string packageId, string version)
     {
         try
         {
-            logger.LogDebug("Starting package search for {PackageId} version {Version}", packageId, version);
+            _logger.LogDebug("Starting package search for {PackageId} version {Version}", packageId, version);
 
             var settings = Settings.LoadDefaultSettings(root: null);
-            logger.LogTrace("NuGet settings loaded from default location");
+            _logger.LogTrace("NuGet settings loaded from default location");
 
             var sourceRepositoryProvider = new SourceRepositoryProvider(
                 new PackageSourceProvider(settings), 
                 Repository.Provider.GetCoreV3());
-            logger.LogDebug("Created SourceRepositoryProvider with CoreV3");
+            _logger.LogDebug("Created SourceRepositoryProvider with CoreV3");
 
             var repository = sourceRepositoryProvider.CreateRepository(
                 new PackageSource("https://api.nuget.org/v3/index.json"));
-            logger.LogDebug("Created repository for nuget.org source");
+            _logger.LogDebug("Created repository for nuget.org source");
 
-            logger.LogTrace("Retrieving PackageMetadataResource");
+            _logger.LogTrace("Retrieving PackageMetadataResource");
             var resource = await repository.GetResourceAsync<PackageMetadataResource>();
-            logger.LogDebug("PackageMetadataResource retrieved successfully");
+            _logger.LogDebug("PackageMetadataResource retrieved successfully");
 
-            logger.LogInformation("Searching for package {PackageId} {Version}", packageId, version);
+            _logger.LogInformation("Searching for package {PackageId} {Version}", packageId, version);
             var searchMetadata = await resource.GetMetadataAsync(
                 packageId,
                 includePrerelease: true,
                 includeUnlisted: false,
                 new SourceCacheContext(),
-                _logger,
+                _nugetLogger,
                 CancellationToken.None);
 
             var result = searchMetadata.FirstOrDefault(x => x.Identity.Version.ToString() == version);
-            logger.LogInformation(
+            _logger.LogInformation(
                 result != null 
                     ? "Package {PackageId} {Version} found" 
                     : "Package {PackageId} {Version} not found", 
@@ -56,7 +68,7 @@ public class NuGetDownloadService(ILogger<NuGetDownloadService> logger, NuGetCac
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error searching for package {PackageId} {Version}", packageId, version);
+            _logger.LogError(ex, "Error searching for package {PackageId} {Version}", packageId, version);
             throw;
         }
     }
@@ -69,81 +81,79 @@ public class NuGetDownloadService(ILogger<NuGetDownloadService> logger, NuGetCac
     {
         try
         {
-            logger.LogDebug("Starting package download for {PackageId} {Version} to {DownloadPath}", 
+            _logger.LogDebug("Starting package download for {PackageId} {Version} to {DownloadPath}", 
                 packageId, version, downloadPath);
 
             var settings = Settings.LoadDefaultSettings(root: null);
-            logger.LogTrace("NuGet settings loaded from default location");
+            _logger.LogTrace("NuGet settings loaded from default location");
 
             var sourceRepositoryProvider = new SourceRepositoryProvider(
                 new PackageSourceProvider(settings), 
                 Repository.Provider.GetCoreV3());
-            logger.LogDebug("Created SourceRepositoryProvider with CoreV3");
+            _logger.LogDebug("Created SourceRepositoryProvider with CoreV3");
 
             var repository = sourceRepositoryProvider.CreateRepository(
                 new PackageSource("https://api.nuget.org/v3/index.json"));
-            logger.LogDebug("Created repository for nuget.org source");
+            _logger.LogDebug("Created repository for nuget.org source");
 
-            logger.LogTrace("Retrieving DownloadResource");
+            _logger.LogTrace("Retrieving DownloadResource");
             var downloadResource = await repository.GetResourceAsync<DownloadResource>();
-            logger.LogDebug("DownloadResource retrieved successfully");
+            _logger.LogDebug("DownloadResource retrieved successfully");
 
             var packageIdentity = new PackageIdentity(packageId, new NuGetVersion(version));
-            var context = new PackageDownloadContext(new SourceCacheContext());
-            
             progress.Report(new NuGetDownloadProgress("Starting download..."));
-            logger.LogInformation("Initiating download for package {PackageId} {Version}", packageId, version);
+            _logger.LogInformation("Initiating download for package {PackageId} {Version}", packageId, version);
 
-            var downloadResult = await downloadResource.GetDownloadResourceResultAsync(
+          /*U  var downloadResult = await (downloadResource as DownloadResourceV3).GetDownloadResourceResultAsync(
                 packageIdentity,
                 context,
                 downloadPath,
                 _logger,
-                CancellationToken.None);
-
-            if (downloadResult.Status == DownloadResourceResultStatus.Available)
+                CancellationToken.None);*/
+            if (downloadResource is DownloadResourceV3 downloadResourceV3)
             {
-                var packageFilePath = Path.Combine(downloadPath, $"{packageIdentity.Id}.{packageIdentity.Version}.nupkg");
-                logger.LogDebug("Package will be saved to {PackageFilePath}", packageFilePath);
+                var file = Path.Combine(downloadPath, $"{packageIdentity.Id}.{packageIdentity.Version}.nupkg");            
 
-                using (var fileStream = new FileStream(packageFilePath, FileMode.Create, FileAccess.Write))
+                var downloadUrlMethod = downloadResourceV3
+                    .GetType()
+                    .GetMethod("GetDownloadUrl", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                    ?.Invoke(downloadResourceV3, new object[] { packageIdentity, _nugetLogger, CancellationToken.None }) as Task<Uri>;
+
+                var downloadUrl = await downloadUrlMethod!;
+                _downloader.DownloadStarted += (sender, args) =>
                 {
-                    var buffer = new byte[81920]; // 80 KB buffer
-                    long totalBytesRead = 0;
-                    int bytesRead;
-                    var totalLength = downloadResult.PackageStream.Length;
+                    _progress = new NuGetDownloadProgress(
+                        $"Downloading... {args.FileName} {args.TotalBytesToReceive} bytes",
+                        0);
+                    progress.Report(_progress);
+                    _logger.LogInformation("Download started: {FileName} {TotalBytes}", args.FileName, args.TotalBytesToReceive);
+                };
+                _downloader.DownloadProgressChanged += (sender, args) =>
+                {
+                    _progress = new NuGetDownloadProgress(
+                        $"Downloading... {args.ReceivedBytesSize}/{args.TotalBytesToReceive} bytes",
+                        (int)((args.ReceivedBytesSize*100) / args.TotalBytesToReceive));
+                    _logger.LogInformation("Download progress: {Progress}", _progress);
+                };
 
-                    logger.LogDebug("Starting to write package stream, total size: {TotalBytes} bytes", totalLength);
-
-                    while ((bytesRead = await downloadResult.PackageStream.ReadAsync(buffer, 0, buffer.Length)) != 0)
+                _downloader.DownloadFileCompleted += (sender, args) =>
+                {
+                    _progress = new NuGetDownloadProgress("Download completed", 100);
+                    progress.Report(_progress);
+                    if (args.Error != null)
                     {
-                        await fileStream.WriteAsync(buffer, 0, bytesRead);
-                        totalBytesRead += bytesRead;
-
-                        var percentComplete = (int)((totalBytesRead * 100) / totalLength);
-                        logger.LogTrace("Download progress: {BytesRead}/{TotalBytes} bytes ({PercentComplete}%)", 
-                            totalBytesRead, totalLength, percentComplete);
-                        
-                        progress.Report(new NuGetDownloadProgress(
-                            $"Downloading... {totalBytesRead}/{totalLength} bytes", 
-                            percentComplete));
+                        _logger.LogError(args.Error, "Error occured while downloading resouce {resource}", file);
+                        throw new Exception(args.Error.Message);   
                     }
-                }
+                    _logger.LogInformation("Download completed for {item}", file);
+                };
+                await _downloader.DownloadFileTaskAsync(downloadUrl.AbsoluteUri, file);
 
-                logger.LogInformation("Package {PackageId} {Version} downloaded successfully", packageId, version);
-                progress.Report(new NuGetDownloadProgress(
-                    $"Package {packageId} {version} downloaded successfully.", 
-                    100));
-            }
-            else
-            {
-                logger.LogWarning("Package not found: {PackageId} {Version}", packageId, version);
-                progress.Report(new NuGetDownloadProgress($"Package not found: {packageId} {version}"));
             }
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error downloading package {PackageId} {Version}", packageId, version);
+            _logger.LogError(ex, "Error downloading package {PackageId} {Version}", packageId, version);
             progress.Report(new NuGetDownloadProgress($"Error downloading package: {ex.Message}"));
             throw;
         }

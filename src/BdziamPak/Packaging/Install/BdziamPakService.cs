@@ -171,10 +171,6 @@ public class BdziamPakService
                 pakDirectory.Create();
             }
 
-            // Process NuGet packages
-            var libDirectory = new DirectoryInfo(Path.Combine(pakDirectory.FullName, "Lib"));
-            libDirectory.Create();
-
             if (metadata.Repository != null)
             {
                 progressData.Message = "Resolving NuGet dependencies...";
@@ -191,27 +187,28 @@ public class BdziamPakService
                     metadata.NuGetPackage.PackageId,
                     NuGetVersion.Parse(metadata.NuGetPackage.PackageVersion),
                     repository);
-
-                progressData.TotalPackages = packages.Count();
+                
+                progressData.TotalPackages = packages?.Count() ?? 0;
                 progress.Report(progressData);
 
-                var downloadTasks = packages.Select(async package =>
+                if (packages != null)
                 {
-                    var nugetProgress = new Progress<NuGetDownloadProgress>();
-                    progressData.NuGetProgresses.Add(nugetProgress);
-                    progress.Report(progressData);
+                    foreach (var package in packages)
+                    {
+                        var nugetProgress = new Progress<NuGetDownloadProgress>();
+                        progressData.NuGetProgresses.Add(nugetProgress);
+                        progress.Report(progressData);
 
-                    await _nugetDownloadService.DownloadPackageAsync(
-                        package.Id,
-                        package.Version.ToString(),
-                        libDirectory.FullName,
-                        nugetProgress);
+                        await _nugetDownloadService.DownloadPackageAsync(
+                            package.Id,
+                            package.Version.ToString(),
+                            _bdziamPakDirectory.CacheDirectory.FullName,
+                            nugetProgress);
 
-                    progressData.CompletedPackages++;
-                    progress.Report(progressData);
-                });
-
-                await Task.WhenAll(downloadTasks);
+                        progressData.CompletedPackages++;
+                        progress.Report(progressData);
+                    }
+                }
             }
 
             // Update Paks.json

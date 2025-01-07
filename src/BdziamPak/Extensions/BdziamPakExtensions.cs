@@ -5,6 +5,7 @@ using BdziamPak.NuGetPackages.Dependencies;
 using BdziamPak.Packages.NuGet;
 using BdziamPak.Packages.Packaging;
 using BdziamPak.Structure;
+using Downloader;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BdziamPak.Extensions;
@@ -23,6 +24,9 @@ public static class BdziamPakExtensions
         services.AddSingleton<GitService>();
         services.AddSingleton<NuGetDownloadService>();
         services.AddSingleton<NuGetDependencyResolver>();
+        services.AddSingleton<Sources>();
+        services.AddSingleton<BdziamPakService>();
+        services.AddSingleton<DownloadService>(sp => new DownloadService(new DownloadConfiguration(){ParallelDownload = true,ParallelCount = 10}));
         
         
         return services.AddSingleton(sp => config);

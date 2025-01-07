@@ -5,27 +5,15 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using BdziamPak.Packages.Packaging.Model;
+using LibGit2Sharp;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace BdziamPak.Tests
 {
-    public class GitServiceTests
+    public class GitServiceTests(ITestOutputHelper outputHelper) : BdziamTestBase(outputHelper)
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly ITestOutputHelper _outputHelper;
-        private readonly ILogger<GitService> _logger;
-        private readonly BdziamPakMetadata _metadata = TestData.BdziamPakMetadata;
-        public GitServiceTests(ITestOutputHelper outputHelper)
-        {
-            _outputHelper = outputHelper;
-            _logger = new TestLogger<GitService>(_outputHelper);
-            _serviceProvider = TestServiceProvider.CreateServiceProvider(config =>
-            {
-                config.BdziamPakPath = ".testbdziampak";
-            }, services => services.AddSingleton(_logger));
-        }
-
         [Fact]
         public void ExampleTest()
         {
@@ -37,13 +25,11 @@ namespace BdziamPak.Tests
         [Fact]
         public void CloneRepo_SuccessfulClone()
         {
-  
-
-            var targetDir = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "testPak@1.0.0"));
-
+            var targetDir = new DirectoryInfo(Path.Combine(_serviceProvider.GetRequiredService<BdziamPakDirectory>().PaksDirectory.FullName, "TestAuthor.testPak@1.0.0"));
+            var metadata = _goodMetadata;
             // Act
             var gitService = _serviceProvider.GetRequiredService<GitService>();
-            var result = gitService.CloneRepo(_metadata);
+            var result = gitService.CloneRepo(metadata);
 
             // Assert
             Assert.NotNull(result);
@@ -55,21 +41,22 @@ namespace BdziamPak.Tests
         {
             // Act
             var gitService = _serviceProvider.GetRequiredService<GitService>();
-            var exception = Assert.Throws<InvalidOperationException>(() => gitService.CloneRepo(_metadata));
+            var metadata = _badMetadata;
+            var exception = Assert.Throws<InvalidOperationException>(() => gitService.CloneRepo(metadata));
 
             // Assert
-            Assert.Contains("Commit nonexistent not found", exception.Message);
+            Assert.Contains("not found", exception.Message);
         }
 
         [Fact]
         public void CloneRepo_RepositoryIsNull()
         {
-
-            var targetDir = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "testPak@1.0.0"));
+            
+            var targetDir = new DirectoryInfo(Path.Combine(_serviceProvider.GetRequiredService<BdziamPakDirectory>().PaksDirectory.FullName, "TestAuthor.testPak@1.0.0"));
 
             // Act
             var gitService = _serviceProvider.GetRequiredService<GitService>();
-            var result = gitService.CloneRepo(_metadata);
+            var result = gitService.CloneRepo(_goodMetadata);
 
             // Assert
             Assert.NotNull(result);
@@ -82,16 +69,16 @@ namespace BdziamPak.Tests
             // Arrange
         
             var targetDir = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "testPak@1.0.0"));
-
+            var metadata = _goodMetadata;
             // Simulate an error by providing an invalid repository URL
-            _metadata.Repository.Url = "https://invalid-url/repo.git";
+            metadata.Repository.Url = "https://invalid-url/repo.git";
 
             // Act
             var gitService = _serviceProvider.GetRequiredService<GitService>();
-            var exception = Assert.Throws<Exception>(() => gitService.CloneRepo(_metadata));
+            var exception = Assert.Throws<LibGit2SharpException>(() => gitService.CloneRepo(metadata));
 
             // Assert
-            Assert.Contains("Error cloning repository", exception.Message);
+            Assert.Contains("failed to resolve", exception.Message);
         }
     }
 }

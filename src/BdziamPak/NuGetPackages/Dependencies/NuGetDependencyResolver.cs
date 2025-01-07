@@ -12,7 +12,7 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace BdziamPak.NuGetPackages.Dependencies;
 
-public class NuGetDependencyResolver(ILogger<NuGetDownloadService> logger)
+public class NuGetDependencyResolver(ILogger<NuGetDependencyResolver> logger)
 {
     private readonly NuGet.Common.ILogger _logger = new NuGetLoggerWrapper(logger);
 

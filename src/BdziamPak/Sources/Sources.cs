@@ -18,7 +18,7 @@ public class Sources : IDisposable
     private readonly TimeSpan _cacheExpiration = TimeSpan.FromMinutes(5);
     private readonly SemaphoreSlim _cacheLock = new(1, 1);
 
-    public Sources(BdziamPakDirectory bdziamPakDirectory, ILogger logger)
+    public Sources(BdziamPakDirectory bdziamPakDirectory, ILogger<Sources> logger)
     {
         _sourcesDirectory = bdziamPakDirectory.SourcesDirectory;
         _logger = logger;
