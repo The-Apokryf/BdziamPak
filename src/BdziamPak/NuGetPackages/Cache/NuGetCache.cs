@@ -13,7 +13,7 @@ public class NuGetCache(BdziamPakDirectory directory, ILogger<NuGetCache> logger
         return File.Exists(packagePath);
     }
 
-    private string GetPackagePath(string packageId, string version)
+    public string GetPackagePath(string packageId, string version)
     {
         return Path.Combine(directory.CacheDirectory.FullName, $"{packageId}.{version}.nupkg");
     }

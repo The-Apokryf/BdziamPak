@@ -155,7 +155,7 @@ public class NuGetDependencyResolver(ILogger<NuGetDependencyResolver> logger)
         }
     }
 
-    private async Task<NuGetFramework> GetBestFrameworkAsync(
+    public async Task<NuGetFramework> GetBestFrameworkAsync(
         string packageId,
         NuGetVersion version,
         SourceRepository sourceRepository)

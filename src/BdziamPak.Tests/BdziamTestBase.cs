@@ -23,5 +23,8 @@ public abstract class BdziamTestBase
 
         var tempIndexPath = Path.Combine(_serviceProvider.GetRequiredService<BdziamPakDirectory>().SourcesDirectory.FullName, 
             $"{TestData.SourceIndex.Name}.json");
+        
+        if(!File.Exists(tempIndexPath))
+            File.WriteAllText(tempIndexPath, JsonSerializer.Serialize(TestData.SourceIndex));
     }
 }

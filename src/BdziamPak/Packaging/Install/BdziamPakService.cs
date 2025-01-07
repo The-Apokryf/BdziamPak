@@ -3,42 +3,29 @@ using BdziamPak.Git;
 using BdziamPak.NuGetPackages;
 using BdziamPak.NuGetPackages.Dependencies;
 using BdziamPak.NuGetPackages.Model;
+using BdziamPak.NuGetPackages.Unpack;
 using BdziamPak.Packaging.Install.Model;
 using BdziamPak.Structure;
 using Microsoft.Extensions.Logging;
 using NuGet.Configuration;
+using NuGet.Frameworks;
 using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 
-public class BdziamPakService
+public class BdziamPakService(
+    ILogger<BdziamPakService> logger,
+    Sources sources,
+    GitService gitService,
+    NuGetDownloadService nugetDownloadService,
+    NuGetDependencyResolver dependencyResolver,
+    BdziamPakDirectory bdziamPakDirectory,
+    NuGetUnpackService unpackService)
 {
-    private readonly ILogger<BdziamPakService> _logger;
-    private readonly Sources _sources;
-    private readonly GitService _gitService;
-    private readonly NuGetDownloadService _nugetDownloadService;
-    private readonly NuGetDependencyResolver _dependencyResolver;
-    private readonly BdziamPakDirectory _bdziamPakDirectory;
     private readonly SemaphoreSlim _semaphore = new(1, 1);
-
-    public BdziamPakService(
-        ILogger<BdziamPakService> logger,
-        Sources sources,
-        GitService gitService,
-        NuGetDownloadService nugetDownloadService,
-        NuGetDependencyResolver dependencyResolver,
-        BdziamPakDirectory bdziamPakDirectory)
-    {
-        _logger = logger;
-        _sources = sources;
-        _gitService = gitService;
-        _nugetDownloadService = nugetDownloadService;
-        _dependencyResolver = dependencyResolver;
-        _bdziamPakDirectory = bdziamPakDirectory;
-    }
 
     private async Task<List<LocalBdziamPak>> LoadPaksJsonAsync()
     {
-        var paksJsonPath = Path.Combine(_bdziamPakDirectory.PaksDirectory.FullName, "Paks.json");
+        var paksJsonPath = Path.Combine(bdziamPakDirectory.PaksDirectory.FullName, "Paks.json");
         if (!File.Exists(paksJsonPath))
             return new List<LocalBdziamPak>();
 
@@ -48,7 +35,7 @@ public class BdziamPakService
 
     private async Task SavePaksJsonAsync(List<LocalBdziamPak> paks)
     {
-        var paksJsonPath = Path.Combine(_bdziamPakDirectory.PaksDirectory.FullName, "Paks.json");
+        var paksJsonPath = Path.Combine(bdziamPakDirectory.PaksDirectory.FullName, "Paks.json");
         var json = JsonSerializer.Serialize(paks, new JsonSerializerOptions { WriteIndented = true });
         await File.WriteAllTextAsync(paksJsonPath, json);
     }
@@ -79,7 +66,7 @@ public class BdziamPakService
 
         foreach (var pak in installedPaks)
         {
-            var searchResults = await _sources.SearchAsync(pak.BdziamPakId);
+            var searchResults = await sources.SearchAsync(pak.BdziamPakId);
             var latestVersion = searchResults
                 .Where(r => r.GetValueOrDefault().Package.BdziamPakId == pak.BdziamPakId)
                 .MaxBy(r => Version.Parse(r.GetValueOrDefault().Package.Version))?.Package;
@@ -124,11 +111,11 @@ public class BdziamPakService
                 Message = $"Starting resolution of {bdziamPakId} v{version}"
             };
 
-            _logger.LogInformation("Starting resolution of {BdziamPakId} v{Version}", bdziamPakId, version);
+            logger.LogInformation("Starting resolution of {BdziamPakId} v{Version}", bdziamPakId, version);
             progress.Report(progressData);
 
             // Search for the package in sources
-            var searchResults = await _sources.SearchAsync(bdziamPakId);
+            var searchResults = await sources.SearchAsync(bdziamPakId);
             var metadata = searchResults
                 .FirstOrDefault(r => r.GetValueOrDefault().Package.BdziamPakId == bdziamPakId && r.GetValueOrDefault().Package.Version == version)
                 ?.Package;
@@ -156,7 +143,7 @@ public class BdziamPakService
 
             // Create package directory
             var pakDirectory = new DirectoryInfo(Path.Combine(
-                _bdziamPakDirectory.PaksDirectory.FullName,
+                bdziamPakDirectory.PaksDirectory.FullName,
                 $"{bdziamPakId}@{version}"));
 
             // Clone repository or create directory
@@ -164,7 +151,7 @@ public class BdziamPakService
             {
                 progressData.Message = "Cloning repository...";
                 progress.Report(progressData);
-                _gitService.CloneRepo(metadata);
+                gitService.CloneRepo(metadata);
             }
             else
             {
@@ -183,7 +170,7 @@ public class BdziamPakService
                     .GetRepositories()
                     .First();
 
-                var packages = await _dependencyResolver.LoadPackageDependenciesAsync(
+                var packages = await dependencyResolver.LoadPackageDependenciesAsync(
                     metadata.NuGetPackage.PackageId,
                     NuGetVersion.Parse(metadata.NuGetPackage.PackageVersion),
                     repository);
@@ -199,17 +186,30 @@ public class BdziamPakService
                         progressData.NuGetProgresses.Add(nugetProgress);
                         progress.Report(progressData);
 
-                        await _nugetDownloadService.DownloadPackageAsync(
+                        await nugetDownloadService.DownloadPackageAsync(
                             package.Id,
                             package.Version.ToString(),
-                            _bdziamPakDirectory.CacheDirectory.FullName,
+                            bdziamPakDirectory.CacheDirectory.FullName,
                             nugetProgress);
+                        progressData.Message = $"Unpacking {package.Id}...";
+                        progress.Report(progressData);
+                        var unpackPath = Path.Combine(pakDirectory.FullName, "Lib");
+                        await unpackService.UnpackPackageAsync(
+                            unpackPath,
+                            package,
+                            CancellationToken.None);
+                        
+                        progressData.Message = $"Unpacking {package.Id} complete!";
+                        progress.Report(progressData);
 
+                        
                         progressData.CompletedPackages++;
                         progress.Report(progressData);
                     }
                 }
             }
+            
+            
 
             // Update Paks.json
             var installedPaks = await LoadPaksJsonAsync();
@@ -236,7 +236,7 @@ public class BdziamPakService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to resolve BdziamPak {BdziamPakId} v{Version}", bdziamPakId, version);
+            logger.LogError(ex, "Failed to resolve BdziamPak {BdziamPakId} v{Version}", bdziamPakId, version);
             throw;
         }
         finally

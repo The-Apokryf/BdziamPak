@@ -2,6 +2,7 @@
 using BdziamPak.Git;
 using BdziamPak.NuGetPackages;
 using BdziamPak.NuGetPackages.Dependencies;
+using BdziamPak.NuGetPackages.Unpack;
 using BdziamPak.Packages.NuGet;
 using BdziamPak.Packages.Packaging;
 using BdziamPak.Structure;
@@ -24,6 +25,7 @@ public static class BdziamPakExtensions
         services.AddSingleton<GitService>();
         services.AddSingleton<NuGetDownloadService>();
         services.AddSingleton<NuGetDependencyResolver>();
+        services.AddSingleton<NuGetUnpackService>();
         services.AddSingleton<Sources>();
         services.AddSingleton<BdziamPakService>();
         services.AddSingleton<DownloadService>(sp => new DownloadService(new DownloadConfiguration(){ParallelDownload = true,ParallelCount = 10}));
