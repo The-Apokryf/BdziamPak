@@ -8,8 +8,8 @@ namespace BdziamPak.Git;
 public class GitCredentials
 {
     private readonly string _credentialsFilePath;
-    private readonly ILogger _logger;
     private readonly object _lockObject = new();
+    private readonly ILogger _logger;
 
     public GitCredentials(BdziamPakDirectory directory, ILogger<GitCredentials> logger)
     {
@@ -24,6 +24,7 @@ public class GitCredentials
                 SaveCredentials(new Dictionary<string, GitCredential>());
                 return;
             }
+
             _logger.LogDebug("Initialization complete");
         }
         catch (Exception ex)
@@ -40,10 +41,11 @@ public class GitCredentials
             _logger.LogDebug("Saving credentials to file {FilePath}", _credentialsFilePath);
             lock (_lockObject)
             {
-                using (FileStream fs = new FileStream(_credentialsFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
-                using (StreamWriter writer = new StreamWriter(fs))
+                using (var fs = new FileStream(_credentialsFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
+                using (var writer = new StreamWriter(fs))
                 {
-                    string json = JsonSerializer.Serialize(credentials, new JsonSerializerOptions { WriteIndented = true });
+                    var json = JsonSerializer.Serialize(credentials,
+                        new JsonSerializerOptions { WriteIndented = true });
                     writer.Write(json);
                 }
             }
@@ -62,11 +64,11 @@ public class GitCredentials
             _logger.LogDebug("Loading credentials from file {FilePath}", _credentialsFilePath);
             lock (_lockObject)
             {
-                using (FileStream fs = new FileStream(_credentialsFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                using (StreamReader reader = new StreamReader(fs))
+                using (var fs = new FileStream(_credentialsFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (var reader = new StreamReader(fs))
                 {
-                    string fileContent = reader.ReadToEnd();
-                    return JsonSerializer.Deserialize<Dictionary<string, GitCredential>>(fileContent) 
+                    var fileContent = reader.ReadToEnd();
+                    return JsonSerializer.Deserialize<Dictionary<string, GitCredential>>(fileContent)
                            ?? new Dictionary<string, GitCredential>();
                 }
             }
@@ -84,7 +86,7 @@ public class GitCredentials
         {
             _logger.LogDebug("Fetching credentials for repo {RepoUrl}", url);
             var credentials = LoadCredentials();
-            
+
             if (credentials.TryGetValue(url, out var creds))
             {
                 _logger.LogDebug("Credentials found for repo {RepoUrl}", url);

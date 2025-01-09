@@ -1,6 +1,4 @@
-﻿using NuGet.Frameworks;
-
-namespace BdziamPak.Configuration;
+﻿namespace BdziamPak.Configuration;
 
 public class BdziamPakConfiguration(string bdziamPakPath)
 {

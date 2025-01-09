@@ -1,21 +1,24 @@
 ﻿using BdziamPak.Packages.Packaging.Model;
 
 namespace BdziamPak.Packages.Index.Model;
+
 /// <summary>
-/// Class representing json file structure - index of BdziamPak packages
+///     Class representing json file structure - index of BdziamPak packages
 /// </summary>
 public class BdziamPakSourceIndex
 {
     /// <summary>
-    /// Name of the source
+    ///     Name of the source
     /// </summary>
     public string Name { get; set; }
+
     /// <summary>
-    /// Description of the source
+    ///     Description of the source
     /// </summary>
     public string Description { get; set; }
+
     /// <summary>
-    /// References to the BdziamPaks
+    ///     References to the BdziamPaks
     /// </summary>
     public List<BdziamPakMetadata> Paks { get; set; }
 }

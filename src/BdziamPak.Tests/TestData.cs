@@ -1,53 +1,49 @@
-﻿using BdziamPak.Packages.Index.Model;
-using BdziamPak.Packages.Packaging.Model;
-
-namespace BdziamPak.Tests;
+﻿namespace BdziamPak.Tests;
 
 public static class TestData
 {
-    public static BdziamPakMetadata GoodMetadata => new ()
+    public static object GoodMetadata => new
     {
         Name = "testPak",
         Author = "TestAuthor",
         Version = "1.0.0",
-        Repository = new BdziamPakRepositoryReference
+        Repository = new
         {
             Url = "https://github.com/pmikstacki/SliccDB.git",
             CommitHash = "f5c1e7c"
         },
-        NuGetPackage = new BdziamPakNuGetDependency()
+        NuGetPackage = new
         {
             PackageId = "SliccDB",
             PackageVersion = "0.1.1.4"
         }
     };
-    
-    
-    public static BdziamPakMetadata BadMetadata => new ()
+
+
+    public static object BadMetadata => new
     {
         Name = "testPak",
         Author = "TestAuthor",
         Version = "1.0.0",
-        Repository = new BdziamPakRepositoryReference
+        Repository = new
         {
             Url = "https://github.com/pmikstacki/SliccDB.git",
-            CommitHash = "sssdafwe"
+            CommitHash = "sdsdsd"
         },
-        NuGetPackage = new BdziamPakNuGetDependency()
+        NuGetPackage = new
         {
-            PackageId = "Newtonsoft.Json",
-            PackageVersion = "13.0.3"
+            PackageId = "SliccDB",
+            PackageVersion = "0.1.1.4"
         }
     };
-    
-    public static BdziamPakSourceIndex SourceIndex => new ()
+
+    public static object SourceIndex => new
     {
         Name = "TestIndex",
         Description = "TestDescription",
-        Paks = new List<BdziamPakMetadata>
+        Paks = new List<object>
         {
             GoodMetadata
         }
     };
-    
 }

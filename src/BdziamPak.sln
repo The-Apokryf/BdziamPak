@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BdziamPak", "BdziamPak\Bdzi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BdziamPak.Tests", "BdziamPak.Tests\BdziamPak.Tests.csproj", "{0D54281C-FE8E-4842-9A86-A4331C792DF9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BdziamPak.PakRepoApi", "BdziamPak.PakRepoApi\BdziamPak.PakRepoApi.csproj", "{2A9278E7-1851-462C-B45B-4910D879BB9D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{0D54281C-FE8E-4842-9A86-A4331C792DF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D54281C-FE8E-4842-9A86-A4331C792DF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0D54281C-FE8E-4842-9A86-A4331C792DF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A9278E7-1851-462C-B45B-4910D879BB9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A9278E7-1851-462C-B45B-4910D879BB9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A9278E7-1851-462C-B45B-4910D879BB9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A9278E7-1851-462C-B45B-4910D879BB9D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

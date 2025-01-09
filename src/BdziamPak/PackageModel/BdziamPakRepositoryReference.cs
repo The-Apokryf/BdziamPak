@@ -1,15 +1,17 @@
 ﻿namespace BdziamPak.Packages.Packaging.Model;
+
 /// <summary>
-/// Reference to a git repository that needs to be downloaded with BdziamPak
+///     Reference to a git repository that needs to be downloaded with BdziamPak
 /// </summary>
 public class BdziamPakRepositoryReference
 {
     /// <summary>
-    /// Url of the repository
+    ///     Url of the repository
     /// </summary>
     public string Url { get; set; }
+
     /// <summary>
-    /// Hash of the commit that should be downloaded
+    ///     Hash of the commit that should be downloaded
     /// </summary>
     public string CommitHash { get; set; }
 }

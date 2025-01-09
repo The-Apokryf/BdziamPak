@@ -1,25 +1,21 @@
-﻿using BdziamPak.NuGetPackages.Logging;
-using Microsoft.Extensions.Logging;
-using NuGet.Common;
-using NuGet.Frameworks;
-using NuGet.Packaging;
-using NuGet.Packaging.Core;
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using BdziamPak.NuGetPackages.Dependencies;
+﻿using BdziamPak.NuGetPackages.Dependencies;
+using BdziamPak.NuGetPackages.Logging;
 using BdziamPak.Packages.NuGet;
+using Microsoft.Extensions.Logging;
+using NuGet.Packaging;
 using NuGet.Protocol.Core.Types;
-using ILogger = Microsoft.Extensions.Logging.ILogger;
+using ILogger = NuGet.Common.ILogger;
 
 namespace BdziamPak.NuGetPackages.Unpack;
 
-public class NuGetUnpackService(ILogger<NuGetUnpackService> logger, NuGetCache nuGetCache, NuGetDependencyResolver dependencyResolver)
+public class NuGetUnpackService(
+    ILogger<NuGetUnpackService> logger,
+    NuGetCache nuGetCache,
+    NuGetDependencyResolver dependencyResolver)
 {
-    private readonly NuGet.Common.ILogger _logger = new NuGetLoggerWrapper(logger);
- public async Task<string> UnpackPackageAsync(
+    private readonly ILogger _logger = new NuGetLoggerWrapper(logger);
+
+    public async Task<string> UnpackPackageAsync(
         string extractPath,
         SourcePackageDependencyInfo packageInfo,
         CancellationToken cancellationToken = default)
@@ -34,7 +30,7 @@ public class NuGetUnpackService(ILogger<NuGetUnpackService> logger, NuGetCache n
                 logger.LogError("Extract path cannot be null or empty");
                 throw new ArgumentNullException(nameof(extractPath));
             }
-            
+
             if (packageInfo == null)
             {
                 logger.LogError("Package information cannot be null");
@@ -44,11 +40,11 @@ public class NuGetUnpackService(ILogger<NuGetUnpackService> logger, NuGetCache n
             var packagePath = nuGetCache.GetPackagePath(
                 packageInfo.Id,
                 packageInfo.Version.ToString());
-            
+
             logger.LogDebug("Package path {packagePath}", packagePath);
             if (string.IsNullOrEmpty(packagePath) || !File.Exists(packagePath))
             {
-                logger.LogError("Package {PackageId} {Version} not found in cache", 
+                logger.LogError("Package {PackageId} {Version} not found in cache",
                     packageInfo.Id, packageInfo.Version);
                 throw new InvalidOperationException(
                     $"Package {packageInfo.Id} {packageInfo.Version} not found in cache");
@@ -71,7 +67,7 @@ public class NuGetUnpackService(ILogger<NuGetUnpackService> logger, NuGetCache n
             }
 
             logger.LogInformation("Selected best framework match: {Framework}", bestFrameworkMatch);
-            
+
             Directory.CreateDirectory(extractPath);
 
             // Get all files from the package
@@ -98,7 +94,6 @@ public class NuGetUnpackService(ILogger<NuGetUnpackService> logger, NuGetCache n
 
             var extractedFiles = new List<string>();
             foreach (var file in bestFrameworkFiles)
-            {
                 try
                 {
                     var fileName = Path.GetFileName(file);
@@ -115,7 +110,6 @@ public class NuGetUnpackService(ILogger<NuGetUnpackService> logger, NuGetCache n
                     logger.LogError(ex, "Failed to extract file {File}", file);
                     throw;
                 }
-            }
 
             logger.LogInformation(
                 "Successfully extracted {FileCount} files from package {PackageId} {Version} to {Path}",
@@ -128,7 +122,7 @@ public class NuGetUnpackService(ILogger<NuGetUnpackService> logger, NuGetCache n
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, 
+            logger.LogError(ex,
                 "Failed to extract package {PackageId} {Version} to {Path}",
                 packageInfo.Id,
                 packageInfo.Version,

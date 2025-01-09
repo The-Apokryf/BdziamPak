@@ -9,5 +9,5 @@ public class BdziamPakInstallProgress
     public List<IProgress<BdziamPakInstallProgress>> DependencyProgresses { get; } = new();
     public int TotalPackages { get; set; }
     public int CompletedPackages { get; set; }
-    public decimal ProgressPercentage => TotalPackages == 0 ? 0 : (CompletedPackages * 100M) / TotalPackages;
+    public decimal ProgressPercentage => TotalPackages == 0 ? 0 : CompletedPackages * 100M / TotalPackages;
 }

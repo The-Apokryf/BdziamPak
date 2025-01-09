@@ -1,6 +1,5 @@
 namespace BdziamPak.Packaging.Install.Model;
 
-
 public class BdziamPakInstallResult
 {
     public bool Success { get; set; }

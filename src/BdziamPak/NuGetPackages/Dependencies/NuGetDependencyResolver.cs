@@ -1,20 +1,17 @@
 ﻿using BdziamPak.NuGetPackages.Logging;
 using Microsoft.Extensions.Logging;
-using NuGet.Common;
-using NuGet.Configuration;
 using NuGet.Frameworks;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
-using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
-using ILogger = Microsoft.Extensions.Logging.ILogger;
+using ILogger = NuGet.Common.ILogger;
 
 namespace BdziamPak.NuGetPackages.Dependencies;
 
 public class NuGetDependencyResolver(ILogger<NuGetDependencyResolver> logger)
 {
-    private readonly NuGet.Common.ILogger _logger = new NuGetLoggerWrapper(logger);
+    private readonly ILogger _logger = new NuGetLoggerWrapper(logger);
 
     public async Task<IEnumerable<SourcePackageDependencyInfo>> LoadPackageDependenciesAsync(
         string packageId,
@@ -22,10 +19,10 @@ public class NuGetDependencyResolver(ILogger<NuGetDependencyResolver> logger)
         SourceRepository sourceRepository)
     {
         logger.LogDebug("Loading dependencies for package {PackageId} {Version}", packageId, version);
-    
+
         var framework = await GetBestFrameworkAsync(packageId, version, sourceRepository);
         logger.LogInformation("Using framework {Framework} for dependency resolution", framework);
-    
+
         return await LoadPackageDependenciesAsync(packageId, version, sourceRepository, framework);
     }
 
@@ -37,9 +34,11 @@ public class NuGetDependencyResolver(ILogger<NuGetDependencyResolver> logger)
     {
         try
         {
-            if (IsRuntimePackage(new SourcePackageDependencyInfo(packageId, version, Array.Empty<PackageDependency>(), true, null)))
+            if (IsRuntimePackage(new SourcePackageDependencyInfo(packageId, version, Array.Empty<PackageDependency>(),
+                    true, null)))
             {
-                logger.LogInformation("Package {PackageId} is a runtime package, skipping dependency resolution", packageId);
+                logger.LogInformation("Package {PackageId} is a runtime package, skipping dependency resolution",
+                    packageId);
                 return [];
             }
 
@@ -103,7 +102,7 @@ public class NuGetDependencyResolver(ILogger<NuGetDependencyResolver> logger)
     {
         if (IsRuntimePackage(package))
         {
-            logger.LogDebug("Skipping runtime package {PackageId} {Version}", 
+            logger.LogDebug("Skipping runtime package {PackageId} {Version}",
                 package.Id, package.Version);
             return;
         }
@@ -113,9 +112,10 @@ public class NuGetDependencyResolver(ILogger<NuGetDependencyResolver> logger)
             logger.LogTrace("Added package {PackageId} {Version} to dependency tree",
                 package.Id, package.Version);
 
-            foreach (var dependency in package.Dependencies.Where(d => !IsRuntimePackage(new SourcePackageDependencyInfo(
-                d.Id, d.VersionRange.MinVersion ?? NuGetVersion.Parse("0.0.0"), 
-                Array.Empty<PackageDependency>(), true, null))))
+            foreach (var dependency in package.Dependencies.Where(d => !IsRuntimePackage(
+                         new SourcePackageDependencyInfo(
+                             d.Id, d.VersionRange.MinVersion ?? NuGetVersion.Parse("0.0.0"),
+                             Array.Empty<PackageDependency>(), true, null))))
             {
                 logger.LogTrace("Resolving dependency {DependencyId} {VersionRange} for package {PackageId}",
                     dependency.Id, dependency.VersionRange, package.Id);
@@ -263,7 +263,8 @@ public class NuGetDependencyResolver(ILogger<NuGetDependencyResolver> logger)
             case "microsoft.windowsdesktop.app":
             case "netstandard.library":
             case "microsoft.netcore.platforms":
-                logger.LogDebug("Package {PackageId} identified as runtime package (known framework package)", package.Id);
+                logger.LogDebug("Package {PackageId} identified as runtime package (known framework package)",
+                    package.Id);
                 return true;
             default:
                 return false;
