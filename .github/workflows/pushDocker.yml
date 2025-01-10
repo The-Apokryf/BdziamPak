@@ -27,6 +27,6 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: .
-        file: ./src/BdziamPak.PakRepoApi/Dockerfile
+        file: src/BdziamPak.PakRepoApi/Dockerfile
         push: true
         tags: ghcr.io/bdziampak/bdziampak-api:latest
