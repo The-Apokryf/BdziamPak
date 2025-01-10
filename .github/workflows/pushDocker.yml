@@ -29,4 +29,4 @@ jobs:
         context: .
         file: ./src/BdziamPak.PakRepoApi/Dockerfile
         push: true
-        tags: ghcr.io/${{ github.repository }}/bdziampak-api:latest
+        tags: ghcr.io/bdziampak/bdziampak-api:latest
