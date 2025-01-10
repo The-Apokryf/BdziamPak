@@ -15,7 +15,7 @@ WORKDIR "/src/BdziamPak.PakRepoApi"
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "BdziamPak.PakRepoApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish BdziamPak.PakRepoApi.csproj -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
