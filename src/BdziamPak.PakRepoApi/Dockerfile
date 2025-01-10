@@ -12,7 +12,7 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY . .
 WORKDIR "/src/BdziamPak.PakRepoApi"
-
+RUN ls
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish BdziamPak.PakRepoApi.csproj -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
