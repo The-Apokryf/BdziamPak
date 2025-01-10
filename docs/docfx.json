@@ -14,6 +14,7 @@
       "namespaceLayout": "nested"
     }
   ],
+  
   "build": {
     "content": [
       {
@@ -45,9 +46,11 @@
       "_appName": "BdziamPak Docs",
       "_appTitle": "BdziamPak Docs",
       "_enableSearch": true,
-      "_appLogoPath": "images/icon_48.png",
-      "_appFaviconPath": "images/icon.svg",
+
+      "_appLogoPath": "../images/icon_48.png",
+      "_appFaviconPath": "../images/icon.svg",
       "pdf": true
-    }
+    },
+    "postProcessors": ["ExtractSearchIndex"]
   }
 }
