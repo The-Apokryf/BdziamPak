@@ -13,6 +13,9 @@ using ILogger = NuGet.Common.ILogger;
 
 namespace BdziamPak.NuGetPackages;
 
+/// <summary>
+/// Provides functionality for downloading NuGet packages.
+/// </summary>
 public class NuGetDownloadService
 {
     private readonly DownloadService _downloader;
@@ -20,6 +23,12 @@ public class NuGetDownloadService
     private readonly ILogger _nugetLogger;
     private NuGetDownloadProgress? _progress;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NuGetDownloadService"/> class.
+    /// </summary>
+    /// <param name="logger">The logger to use for logging.</param>
+    /// <param name="cache">The NuGet cache.</param>
+    /// <param name="downloader">The download service.</param>
     public NuGetDownloadService(ILogger<NuGetDownloadService> logger, NuGetCache cache, DownloadService downloader)
     {
         _logger = logger;
@@ -27,6 +36,12 @@ public class NuGetDownloadService
         _nugetLogger = new NuGetLoggerWrapper(logger);
     }
 
+    /// <summary>
+    /// Searches for a NuGet package by its ID and version.
+    /// </summary>
+    /// <param name="packageId">The ID of the package.</param>
+    /// <param name="version">The version of the package.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the package metadata if found, otherwise null.</returns>
     public async Task<IPackageSearchMetadata?> SearchPackageAsync(string packageId, string version)
     {
         try
@@ -75,6 +90,14 @@ public class NuGetDownloadService
         }
     }
 
+    /// <summary>
+    /// Downloads a NuGet package to the specified path.
+    /// </summary>
+    /// <param name="packageId">The ID of the package.</param>
+    /// <param name="version">The version of the package.</param>
+    /// <param name="downloadPath">The path to download the package to.</param>
+    /// <param name="progress">The progress reporter.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task DownloadPackageAsync(
         string packageId,
         string version,
@@ -106,12 +129,6 @@ public class NuGetDownloadService
             progress.Report(new NuGetDownloadProgress("Starting download..."));
             _logger.LogInformation("Initiating download for package {PackageId} {Version}", packageId, version);
 
-            /*U  var downloadResult = await (downloadResource as DownloadResourceV3).GetDownloadResourceResultAsync(
-                  packageIdentity,
-                  context,
-                  downloadPath,
-                  _logger,
-                  CancellationToken.None);*/
             if (downloadResource is DownloadResourceV3 downloadResourceV3)
             {
                 var file = Path.Combine(downloadPath, $"{packageIdentity.Id}.{packageIdentity.Version}.nupkg");

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json",
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "../src",
+          "files": [
+            "**/*.csproj"
+          ]
+        }
+      ],
+      "dest": "api",
+      "namespaceLayout": "nested"
+    }
+  ],
+  "build": {
+    "content": [
+      { "files": "**/*.{md,yml}", "src": "", "dest": "" },
+      { "files": "**/*.{md,yml}", "src": "api", "dest": "api" },
+      { "files": "**/*.{md,yml}", "src": "articles", "dest": "docs" }
+    ],
+    "resource": [
+      {
+        "files": [
+          "images/**"
+        ]
+      }
+    ],
+    "output": "_site",
+    "template": [
+      "default",
+      "modern"
+    ],
+    "globalMetadata": {
+      "_appName": "BdziamPak Docs",
+      "_appTitle": "BdziamPak Docs",
+      "_enableSearch": true,
+      "_appLogoPath":"images/icon_48.png",
+      "_appFaviconPath":"images/icon.svg",
+      "pdf": true
+    }
+  }
+}

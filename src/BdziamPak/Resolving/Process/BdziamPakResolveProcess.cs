@@ -7,33 +7,66 @@ using Microsoft.Extensions.Logging;
 namespace BdziamPak.Resolving;
 
 /// <summary>
-///     Package Resolvement is split into steps,
+/// Represents the process of resolving a BdziamPak package.
 /// </summary>
 public class BdziamPakResolveProcess(
     BdziamPakDirectory directory,
     ILogger<BdziamPakResolveProcess> logger,
     ExternalDependencyResolver externalDependencyResolver)
 {
+    /// <summary>
+    /// List of steps involved in the resolving process.
+    /// </summary>
     protected readonly List<BdziamPakResolveStep> _steps = new();
+
+    /// <summary>
+    /// Unique identifier for the resolve process.
+    /// </summary>
     protected readonly string Id = Guid.NewGuid().ToString();
+
+    /// <summary>
+    /// Gets or sets the current step in the resolving process.
+    /// </summary>
     public BdziamPakResolveStep? CurrentStep { get; protected set; }
+
+    /// <summary>
+    /// Gets or sets the progress reporter for the resolving process.
+    /// </summary>
     public IProgress<ResolveStatusLog>? Progress { get; set; }
 
+    /// <summary>
+    /// Logs a warning when a step in the resolving process is stopped.
+    /// </summary>
+    /// <param name="fatal">Indicates if the stop is fatal.</param>
+    /// <param name="context">The context of the resolving process.</param>
     public void StepStopped(bool fatal, BdziamPakResolveContext context)
     {
         logger.LogWarning("{fatal}Resolve stopped with state {State}", fatal ? "[FATAL] " : "", context.State);
     }
 
+    /// <summary>
+    /// Reports the completion of a step in the resolving process.
+    /// </summary>
+    /// <param name="context">The context of the resolving process.</param>
     public void StepResolveCompleted(BdziamPakResolveContext context)
     {
         Progress?.Report(context.Status.CurrentStatus);
     }
 
+    /// <summary>
+    /// Updates the progress of the resolving process.
+    /// </summary>
+    /// <param name="context">The context of the resolving process.</param>
     public void UpdateProcess(BdziamPakResolveContext context)
     {
         Progress?.Report(context.Status.CurrentStatus ?? new ResolveStatusLog(-1, "Waiting..."));
     }
 
+    /// <summary>
+    /// Adds a step to the resolving process.
+    /// </summary>
+    /// <typeparam name="TStep">The type of the step to add.</typeparam>
+    /// <returns>The current instance of <see cref="BdziamPakResolveProcess"/>.</returns>
     public BdziamPakResolveProcess AddStep<TStep>() where TStep : BdziamPakResolveStep
     {
         var step = externalDependencyResolver.Resolve<TStep>();
@@ -41,6 +74,10 @@ public class BdziamPakResolveProcess(
         return this;
     }
 
+    /// <summary>
+    /// Executes the resolving process with the given metadata.
+    /// </summary>
+    /// <param name="metadata">The metadata of the BdziamPak package.</param>
     public async Task Execute(BdziamPakMetadata metadata)
     {
         var context = new BdziamPakResolveContext(this, directory);

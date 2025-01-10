@@ -1,4 +1,5 @@
 ﻿using BdziamPak.Configuration;
+using System.IO;
 
 namespace BdziamPak.Structure;
 
@@ -24,6 +25,11 @@ public class BdziamPakDirectory
 {
     private readonly IServiceProvider _serviceProvider;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BdziamPakDirectory"/> class.
+    /// </summary>
+    /// <param name="bdziamPakConfiguration">The configuration for BdziamPak.</param>
+    /// <param name="serviceProvider">The service provider.</param>
     public BdziamPakDirectory(BdziamPakConfiguration bdziamPakConfiguration, IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;

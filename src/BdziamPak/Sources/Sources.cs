@@ -6,6 +6,9 @@ using BdziamPak.Packages.Packaging.Model;
 using BdziamPak.Structure;
 using Microsoft.Extensions.Logging;
 
+/// <summary>
+/// Manages the sources for BdziamPak packages, including caching, loading, and searching.
+/// </summary>
 public class Sources : IDisposable
 {
     private readonly TimeSpan _cacheExpiration = TimeSpan.FromMinutes(5);
@@ -18,6 +21,11 @@ public class Sources : IDisposable
     private readonly ConcurrentDictionary<string, (BdziamPakSourceIndex Source, DateTime LastUpdate)> _sourceCache;
     private readonly DirectoryInfo _sourcesDirectory;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Sources"/> class.
+    /// </summary>
+    /// <param name="bdziamPakDirectory">The directory containing the sources.</param>
+    /// <param name="logger">The logger instance.</param>
     public Sources(BdziamPakDirectory bdziamPakDirectory, ILogger<Sources> logger)
     {
         _sourcesDirectory = bdziamPakDirectory.SourcesDirectory;
@@ -32,6 +40,9 @@ public class Sources : IDisposable
         _logger.LogDebug("Sources initialized with directory: {Directory}", _sourcesDirectory.FullName);
     }
 
+    /// <summary>
+    /// Disposes the resources used by the <see cref="Sources"/> instance.
+    /// </summary>
     public void Dispose()
     {
         _logger.LogDebug("Disposing Sources instance");
@@ -39,6 +50,11 @@ public class Sources : IDisposable
         _cacheLock.Dispose();
     }
 
+    /// <summary>
+    /// Loads a source file asynchronously.
+    /// </summary>
+    /// <param name="file">The file to load.</param>
+    /// <returns>The loaded source index, or null if an error occurs.</returns>
     private async Task<BdziamPakSourceIndex?> LoadSourceFileAsync(FileInfo file)
     {
         _logger.LogDebug("Loading source file: {FilePath}", file.FullName);
@@ -57,6 +73,9 @@ public class Sources : IDisposable
         }
     }
 
+    /// <summary>
+    /// Refreshes the cache if needed.
+    /// </summary>
     private async Task RefreshCacheIfNeededAsync()
     {
         _logger.LogDebug("Attempting to acquire cache refresh lock");
@@ -121,6 +140,10 @@ public class Sources : IDisposable
         }
     }
 
+    /// <summary>
+    /// Lists the sources asynchronously.
+    /// </summary>
+    /// <returns>A list of source indexes.</returns>
     public async Task<IReadOnlyList<BdziamPakSourceIndex>> ListSourcesAsync()
     {
         _logger.LogDebug("Listing sources, initiating cache refresh");
@@ -164,6 +187,10 @@ public class Sources : IDisposable
         return validSources;
     }
 
+    /// <summary>
+    /// Registers a new source from a URL asynchronously.
+    /// </summary>
+    /// <param name="url">The URL of the source to register.</param>
     public async Task RegisterSourceAsync(string url)
     {
         _logger.LogInformation("Registering new source from URL: {Url}", url);
@@ -195,6 +222,10 @@ public class Sources : IDisposable
         }
     }
 
+    /// <summary>
+    /// Deletes a source by name.
+    /// </summary>
+    /// <param name="name">The name of the source to delete.</param>
     public void DeleteSource(string name)
     {
         _logger.LogInformation("Attempting to delete source: {SourceName}", name);
@@ -215,6 +246,12 @@ public class Sources : IDisposable
             _logger.LogWarning("Source file not found for deletion: {SourceName}", name);
     }
 
+    /// <summary>
+    /// Searches for packages matching the search term asynchronously.
+    /// </summary>
+    /// <param name="searchTerm">The term to search for.</param>
+    /// <param name="comparison">The string comparison method to use.</param>
+    /// <returns>A list of matching packages and their source names.</returns>
     public async Task<IReadOnlyList<(BdziamPakMetadata Package, string SourceName)?>> SearchAsync(
         string searchTerm,
         StringComparison comparison = StringComparison.OrdinalIgnoreCase)

@@ -7,18 +7,34 @@ using Xunit.Abstractions;
 
 namespace BdziamPak.Tests;
 
+/// <summary>
+/// Base class for BdziamPak unit tests.
+/// </summary>
 public abstract class BdziamTestBase
 {
     private static readonly object _fileLock = new();
 
+    /// <summary>
+    /// Metadata representing a bad BdziamPak.
+    /// </summary>
     protected readonly BdziamPakMetadata _badMetadata =
         JsonSerializer.SerializeToElement(TestData.BadMetadata).Deserialize<BdziamPakMetadata>();
 
+    /// <summary>
+    /// Metadata representing a good BdziamPak.
+    /// </summary>
     protected readonly BdziamPakMetadata _goodMetadata =
         JsonSerializer.SerializeToElement(TestData.GoodMetadata).Deserialize<BdziamPakMetadata>();
 
+    /// <summary>
+    /// Service provider for dependency injection.
+    /// </summary>
     protected readonly IServiceProvider _serviceProvider;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BdziamTestBase"/> class.
+    /// </summary>
+    /// <param name="outputHelper">The output helper for test output.</param>
     public BdziamTestBase(ITestOutputHelper outputHelper)
     {
         _serviceProvider = TestServiceProvider.CreateServiceProvider(

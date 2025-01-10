@@ -1,0 +1,20 @@
+- name: Introduction
+  href: index.md
+- name: Concepts
+  href: concepts.md
+  items:
+    - name: Resolve Process
+    - name: Resolve Step
+    - name: Sources
+    - name: BdziamPaks
+- name: Web API
+  items:
+    - name: Client
+- name: Contributor's Guide
+  items:
+    - name: Current Priorities
+    - name: Repository Structure
+    - name: Style Guide
+    - name: PR Requirements
+    - name: Wall of Fame
+- name: Featured Projects

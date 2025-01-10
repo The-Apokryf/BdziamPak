@@ -3,12 +3,21 @@ using BdziamPak.Packaging.Install.Model;
 using BdziamPak.Resolving;
 using Microsoft.Extensions.Logging;
 
+/// <summary>
+/// Service for resolving BdziamPak packages.
+/// </summary>
 public class BdziamPakService
 {
     private readonly ILogger<BdziamPakService> _logger;
     private readonly IResolveProcessService _resolveProcessService;
     private readonly Sources _sources;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BdziamPakService"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance.</param>
+    /// <param name="resolveProcessService">The resolve process service.</param>
+    /// <param name="sources">The sources for searching packages.</param>
     public BdziamPakService(
         ILogger<BdziamPakService> logger,
         IResolveProcessService resolveProcessService,
@@ -19,10 +28,17 @@ public class BdziamPakService
         _sources = sources;
     }
 
+    /// <summary>
+    /// Resolves a BdziamPak package asynchronously.
+    /// </summary>
+    /// <param name="bdziamPakId">The ID of the BdziamPak package.</param>
+    /// <param name="version">The version of the BdziamPak package.</param>
+    /// <param name="progress">The progress reporter.</param>
+    /// <returns>The result of the BdziamPak package installation.</returns>
     public async Task<BdziamPakInstallResult> ResolveBdziamPakAsync(
         string bdziamPakId,
         string version,
-        IProgress<BdziamPakInstallProgress> progress)
+        IProgress<BdziamPakResolveProgress> progress)
     {
         try
         {
@@ -34,15 +50,15 @@ public class BdziamPakService
                     Message = $"Package {bdziamPakId} v{version} not found"
                 };
 
-            var resolveProgress = new Progress<ResolveStatusLog>(log =>
+            var resolveProgress = new BdziamPakResolveProgress();
+            var resolveStatusProgress = new Progress<ResolveStatusLog>(log =>
             {
-                progress.Report(new BdziamPakInstallProgress
-                {
-                    Message = log.Message
-                });
+                resolveProgress.ResolveStatusLogs.Add(log);
+                resolveProgress.Message = log.Message;
+                progress.Report(resolveProgress);
             });
 
-            await _resolveProcessService.ResolveAsync(metadata, resolveProgress);
+            await _resolveProcessService.ResolveAsync(metadata, resolveStatusProgress);
 
             return new BdziamPakInstallResult
             {
@@ -57,6 +73,12 @@ public class BdziamPakService
         }
     }
 
+    /// <summary>
+    /// Loads the metadata for a BdziamPak package asynchronously.
+    /// </summary>
+    /// <param name="bdziamPakId">The ID of the BdziamPak package.</param>
+    /// <param name="version">The version of the BdziamPak package.</param>
+    /// <returns>The metadata of the BdziamPak package if found; otherwise, null.</returns>
     private async Task<BdziamPakMetadata?> LoadMetadataAsync(string bdziamPakId, string version)
     {
         var searchResults = await _sources.SearchAsync(bdziamPakId);

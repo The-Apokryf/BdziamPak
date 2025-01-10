@@ -3,10 +3,33 @@ using Microsoft.Extensions.Logging;
 
 namespace BdziamPak.Git;
 
-public class GitService(
-    ILogger<GitService> logger,
-    GitCredentials gitCredentials)
+/// <summary>
+/// Provides functionality for interacting with Git repositories.
+/// </summary>
+public class GitService
 {
+    private readonly ILogger<GitService> logger;
+    private readonly GitCredentials gitCredentials;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GitService"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance for logging.</param>
+    /// <param name="gitCredentials">The Git credentials manager.</param>
+    public GitService(ILogger<GitService> logger, GitCredentials gitCredentials)
+    {
+        this.logger = logger;
+        this.gitCredentials = gitCredentials;
+    }
+
+    /// <summary>
+    /// Clones a Git repository to the specified directory and checks out the specified commit.
+    /// </summary>
+    /// <param name="targetDir">The target directory to clone the repository into.</param>
+    /// <param name="url">The URL of the Git repository.</param>
+    /// <param name="commitHash">The commit hash to check out.</param>
+    /// <returns>The target directory containing the cloned repository.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the specified commit is not found.</exception>
     public DirectoryInfo CloneRepo(DirectoryInfo targetDir, string url, string commitHash)
     {
         try
@@ -22,8 +45,7 @@ public class GitService(
                 var commit = repo.Lookup<Commit>(commitHash);
                 if (commit == null)
                 {
-                    logger.LogError("Commit {CommitHash} not found in repository {RepoUrl}",
-                        commitHash, url);
+                    logger.LogError("Commit {CommitHash} not found in repository {RepoUrl}", commitHash, url);
                     throw new InvalidOperationException($"Commit {commitHash} not found");
                 }
 
@@ -31,8 +53,7 @@ public class GitService(
             }
 
             CopyFilesRecursively(tempDir, targetDir);
-            logger.LogDebug("Successfully cloned repository {RepoUrl} to {TargetDir}", url,
-                targetDir.FullName);
+            logger.LogDebug("Successfully cloned repository {RepoUrl} to {TargetDir}", url, targetDir.FullName);
 
             return targetDir;
         }
@@ -43,6 +64,11 @@ public class GitService(
         }
     }
 
+    /// <summary>
+    /// Gets the clone options for the specified repository URL.
+    /// </summary>
+    /// <param name="url">The URL of the Git repository.</param>
+    /// <returns>The clone options.</returns>
     private CloneOptions GetCloneOptions(string url)
     {
         var options = new CloneOptions();
@@ -59,6 +85,11 @@ public class GitService(
         return options;
     }
 
+    /// <summary>
+    /// Recursively copies files and directories from the source directory to the target directory.
+    /// </summary>
+    /// <param name="source">The source directory.</param>
+    /// <param name="target">The target directory.</param>
     private static void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
     {
         foreach (var dir in source.GetDirectories())
@@ -68,6 +99,7 @@ public class GitService(
             CopyFilesRecursively(dir, targetSubDir);
         }
 
-        foreach (var file in source.GetFiles()) file.CopyTo(Path.Combine(target.FullName, file.Name), true);
+        foreach (var file in source.GetFiles())
+            file.CopyTo(Path.Combine(target.FullName, file.Name), true);
     }
 }

@@ -10,20 +10,44 @@ using NuGet.Versioning;
 
 namespace BdziamPak.Resolving.ResolveSteps.BuiltIn;
 
+/// <summary>
+/// Represents a step in the resolving process that resolves NuGet dependencies for the package.
+/// </summary>
+/// <param name="dependencyResolver">The service used to resolve NuGet dependencies.</param>
+/// <param name="nugetDownloadService">The service used to download NuGet packages.</param>
+/// <param name="unpackService">The service used to unpack NuGet packages.</param>
+/// <param name="bdziamPakDirectory">The directory where the BdziamPak package is located.</param>
 public class ResolveNuGetDependenciesStep(
     NuGetDependencyResolver dependencyResolver,
     NuGetDownloadService nugetDownloadService,
     NuGetUnpackService unpackService,
     BdziamPakDirectory bdziamPakDirectory) : BdziamPakResolveStep
 {
+    /// <summary>
+    /// Gets the name of the step.
+    /// </summary>
     public override string StepName => "ResolveNuGetDependencies";
+
+    /// <summary>
+    /// Gets the description of the step.
+    /// </summary>
     public override string StepDescription => "Resolves NuGet dependencies for the package.";
 
+    /// <summary>
+    /// Determines whether the step can be executed based on the provided context.
+    /// </summary>
+    /// <param name="context">The context to check for execution eligibility.</param>
+    /// <returns><c>true</c> if the step can be executed; otherwise, <c>false</c>.</returns>
     public override bool CanExecute(ICheckResolveContext context)
     {
         return context.HasMetadata("NuGetPackage");
     }
 
+    /// <summary>
+    /// Executes the step asynchronously.
+    /// </summary>
+    /// <param name="context">The context for the execution of the step.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public override async Task ExecuteAsync(IExecutionResolveContext context)
     {
         context.UpdateStatus("Resolving NuGet dependencies...");

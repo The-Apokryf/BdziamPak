@@ -1,7 +1,13 @@
 ﻿namespace BdziamPak.Tests;
 
+/// <summary>
+/// Provides test data for BdziamPak unit tests.
+/// </summary>
 public static class TestData
 {
+    /// <summary>
+    /// Gets the metadata representing a good BdziamPak.
+    /// </summary>
     public static object GoodMetadata => new
     {
         Name = "testPak",
@@ -19,7 +25,9 @@ public static class TestData
         }
     };
 
-
+    /// <summary>
+    /// Gets the metadata representing a bad BdziamPak.
+    /// </summary>
     public static object BadMetadata => new
     {
         Name = "testPak",
@@ -37,6 +45,9 @@ public static class TestData
         }
     };
 
+    /// <summary>
+    /// Gets the source index data.
+    /// </summary>
     public static object SourceIndex => new
     {
         Name = "TestIndex",
