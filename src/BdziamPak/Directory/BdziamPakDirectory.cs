@@ -7,6 +7,7 @@ namespace BdziamPak.Structure;
 ///     Manages specified BdziamPak Directory
 /// </summary>
 /// <remarks>
+/// ```plaintext
 ///     Directory Structure
 ///     │.{directoryName}/
 ///     ├── Sources/                     # Directory for files
@@ -20,6 +21,7 @@ namespace BdziamPak.Structure;
 ///     │       ├── (other git contents)           # Contains extracted nuget packages assigned to a given BdziamPak
 ///     │       ├── pak.json      # Contains Metadata about given Pak
 ///     ├── GitCredentials.json # Contains Git credentials
+/// ```
 /// </remarks>
 public class BdziamPakDirectory
 {

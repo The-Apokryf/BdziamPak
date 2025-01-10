@@ -1,6 +1,6 @@
-# BdziamPak
+# Introduction
 
-![BdziamPak Icon](images/Icon_64.png)
+![BdziamPak Icon](../images/Icon_64.png)
 
 BdziamPak is a package management system designed to handle the installation and resolution of packages. This repository contains the core library, api, and unit tests for BdziamPak.
 

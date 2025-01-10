@@ -16,9 +16,17 @@
   ],
   "build": {
     "content": [
-      { "files": "**/*.{md,yml}", "src": "", "dest": "" },
-      { "files": "**/*.{md,yml}", "src": "api", "dest": "api" },
-      { "files": "**/*.{md,yml}", "src": "articles", "dest": "docs" }
+      {
+        "files": [
+          "api/**.yml",
+          "api/index.md",
+          "docs/**.md",
+          "docs/**/toc.yml",
+          "restapi/**",
+          "toc.yml",
+          "*.md"
+        ]
+      }
     ],
     "resource": [
       {
@@ -30,14 +38,15 @@
     "output": "_site",
     "template": [
       "default",
-      "modern"
+      "modern",
+      "templates/material"
     ],
     "globalMetadata": {
       "_appName": "BdziamPak Docs",
       "_appTitle": "BdziamPak Docs",
       "_enableSearch": true,
-      "_appLogoPath":"images/icon_48.png",
-      "_appFaviconPath":"images/icon.svg",
+      "_appLogoPath": "images/icon_48.png",
+      "_appFaviconPath": "images/icon.svg",
       "pdf": true
     }
   }
