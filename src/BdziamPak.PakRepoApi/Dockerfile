@@ -10,10 +10,8 @@ ENV Auth__ApiKey=$API_KEY
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-RUN dotnet restore "./BdziamPak.PakRepoApi/BdziamPak.PakRepoApi.csproj"
 COPY . .
 WORKDIR "/src/BdziamPak.PakRepoApi"
-RUN dotnet build "BdziamPak.PakRepoApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
