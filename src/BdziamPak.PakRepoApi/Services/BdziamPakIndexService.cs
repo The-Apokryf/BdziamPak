@@ -65,7 +65,7 @@ public class BdziamPakIndexService
         await _semaphore.WaitAsync();
         try
         {
-            var metadata = _source.Paks.FirstOrDefault(p => p.BdziamPakId == bdziamPakId && p.Version == version);
+            var metadata = _source.Paks.FirstOrDefault(p => p.BdziamPakId == bdziamPakId && p.BdziamPakVersion.Version == version);
             if (metadata != null)
             {
                 _source.Paks.Remove(metadata);

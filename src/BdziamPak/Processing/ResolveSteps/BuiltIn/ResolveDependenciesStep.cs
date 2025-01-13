@@ -17,11 +17,11 @@ namespace BdziamPak.Resolving.ResolveSteps.BuiltIn;
 /// <param name="nugetDownloadService">The service used to download NuGet packages.</param>
 /// <param name="unpackService">The service used to unpack NuGet packages.</param>
 /// <param name="bdziamPakDirectory">The directory where the BdziamPak package is located.</param>
-public class ResolveNuGetDependenciesStep(
+public class ProcessNuGetDependenciesStep(
     NuGetDependencyResolver dependencyResolver,
     NuGetDownloadService nugetDownloadService,
     NuGetUnpackService unpackService,
-    BdziamPakDirectory bdziamPakDirectory) : BdziamPakResolveStep
+    BdziamPakDirectory bdziamPakDirectory) : BdziamPakProcessStep
 {
     /// <summary>
     /// Gets the name of the step.
@@ -29,16 +29,11 @@ public class ResolveNuGetDependenciesStep(
     public override string StepName => "ResolveNuGetDependencies";
 
     /// <summary>
-    /// Gets the description of the step.
-    /// </summary>
-    public override string StepDescription => "Resolves NuGet dependencies for the package.";
-
-    /// <summary>
     /// Determines whether the step can be executed based on the provided context.
     /// </summary>
     /// <param name="context">The context to check for execution eligibility.</param>
     /// <returns><c>true</c> if the step can be executed; otherwise, <c>false</c>.</returns>
-    public override bool CanExecute(ICheckResolveContext context)
+    public override bool CanExecute(ICheckProcessingContext context)
     {
         return context.HasMetadata("NuGetPackage");
     }
@@ -48,7 +43,7 @@ public class ResolveNuGetDependenciesStep(
     /// </summary>
     /// <param name="context">The context for the execution of the step.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public override async Task ExecuteAsync(IExecutionResolveContext context)
+    public override async Task ExecuteAsync(IExecutionProcessingContext context)
     {
         context.UpdateStatus("Resolving NuGet dependencies...");
 
@@ -57,7 +52,7 @@ public class ResolveNuGetDependenciesStep(
             new PackageSourceProvider(Settings.LoadDefaultSettings(null)),
             Repository.Provider.GetCoreV3()
         ).GetRepositories().First();
-        var nugetDependency = metadata.GetMetadata<BdziamPakNuGetDependency>("NuGetPackage")!;
+        var nugetDependency = metadata.BdziamPakVersion.GetMetadata<BdziamPakNuGetDependency>("NuGetPackage")!;
         var packages = await dependencyResolver.LoadPackageDependenciesAsync(
             nugetDependency.PackageId,
             NuGetVersion.Parse(nugetDependency.PackageVersion),

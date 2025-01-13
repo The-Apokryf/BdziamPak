@@ -7,15 +7,17 @@ namespace BdziamPak.Resolving;
 /// <summary>
 /// Represents the context for resolving a BdziamPak package.
 /// </summary>
-/// <param name="bdziamPakResolveProcess">The resolve process.</param>
+/// <param name="bdziamPakProcess">The resolve process.</param>
 /// <param name="directory">The directory where the package is located.</param>
-public class BdziamPakResolveContext(BdziamPakResolveProcess bdziamPakResolveProcess, BdziamPakDirectory directory)
-    : IExecutionResolveContext, ICheckResolveContext
+public class BdziamPakProcessingContext(BdziamPakProcess bdziamPakProcess, BdziamPakDirectory directory)
+    : IExecutionProcessingContext, ICheckProcessingContext
 {
     /// <summary>
     /// Gets the current resolve status.
     /// </summary>
     public ResolveStatus Status { get; protected set; } = new();
+    
+    
 
     /// <summary>
     /// Gets the current resolve state.
@@ -25,14 +27,14 @@ public class BdziamPakResolveContext(BdziamPakResolveProcess bdziamPakResolvePro
     /// <summary>
     /// Gets the list of completed resolve steps.
     /// </summary>
-    public List<BdziamPakResolveStep> CompletedResolveSteps { get; } = new();
+    public List<BdziamPakProcessStep> CompletedResolveSteps { get; } = new();
 
     /// <summary>
     /// Checks if a specific resolve step was completed.
     /// </summary>
     /// <typeparam name="TStep">The type of the resolve step.</typeparam>
     /// <returns>true if the step was completed; otherwise, false.</returns>
-    public bool WasCompleted<TStep>() where TStep : BdziamPakResolveStep
+    public bool WasCompleted<TStep>() where TStep : BdziamPakProcessStep
     {
         var result = CompletedResolveSteps.FirstOrDefault(step => step.GetType() == typeof(TStep));
         if (result == null)
@@ -85,7 +87,7 @@ public class BdziamPakResolveContext(BdziamPakResolveProcess bdziamPakResolvePro
     /// <returns>true if the metadata contains the key; otherwise, false.</returns>
     public bool HasMetadata(string key)
     {
-        var result = BdziamPakMetadata.HasMetadata(key);
+        var result = BdziamPakMetadata[RequestedVersion]!.HasMetadata(key);
         if (!result)
         {
             Skip($"Step cannot continue, because the metadata {key} is required");
@@ -109,12 +111,19 @@ public class BdziamPakResolveContext(BdziamPakResolveProcess bdziamPakResolvePro
     /// Gets the resolve directory.
     /// </summary>
     public DirectoryInfo ResolveDirectory => new(Path.Combine(directory.PaksDirectory.FullName,
-        $"{BdziamPakMetadata.BdziamPakId}@{BdziamPakMetadata.Version}"));
+        $"{BdziamPakMetadata.BdziamPakId}@{RequestedVersion}"));
 
     /// <summary>
     /// Gets or sets the metadata for the BdziamPak package.
     /// </summary>
     public BdziamPakMetadata BdziamPakMetadata { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the Version for the requested BdziamPak package.
+    /// </summary>
+    public string RequestedVersion { get; set; }
+
+    
 
     /// <summary>
     /// Marks the resolve process as failed with a message.
@@ -124,7 +133,7 @@ public class BdziamPakResolveContext(BdziamPakResolveProcess bdziamPakResolvePro
     {
         State = ResolveState.Failed;
         Status.AddStatus(Status.CurrentStep, message);
-        bdziamPakResolveProcess.StepStopped(true, this);
+        bdziamPakProcess.StepStopped(true, this);
     }
 
     /// <summary>
@@ -134,7 +143,7 @@ public class BdziamPakResolveContext(BdziamPakResolveProcess bdziamPakResolvePro
     public void Skip(string message)
     {
         Status.AddStatus(Status.CurrentStep, message);
-        bdziamPakResolveProcess.StepStopped(false, this);
+        bdziamPakProcess.StepStopped(false, this);
     }
 
     /// <summary>
@@ -162,9 +171,9 @@ public class BdziamPakResolveContext(BdziamPakResolveProcess bdziamPakResolvePro
     /// </summary>
     public void Complete()
     {
-        CompletedResolveSteps.Add(bdziamPakResolveProcess?.CurrentStep);
+        CompletedResolveSteps.Add(bdziamPakProcess?.CurrentStep);
         Status.AddStatus(Status.CurrentStep, "Step completed");
-        bdziamPakResolveProcess.StepResolveCompleted(this);
+        bdziamPakProcess.StepResolveCompleted(this);
     }
 
     /// <summary>
@@ -175,7 +184,7 @@ public class BdziamPakResolveContext(BdziamPakResolveProcess bdziamPakResolvePro
     /// <returns>The metadata value if found; otherwise, the default value for the type.</returns>
     public T? GetMetadata<T>(string key)
     {
-        var result = BdziamPakMetadata.GetMetadata<T>(key);
+        var result = BdziamPakMetadata[RequestedVersion]!.GetMetadata<T>(key);
         if (result == null) Skip($"Step cannot abort, because the metadata {key} is required");
         return result;
     }

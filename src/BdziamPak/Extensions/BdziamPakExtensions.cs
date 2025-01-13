@@ -43,7 +43,7 @@ public static class BdziamPakExtensions
         else
             services.AddSingleton<IResolveProcessService, ResolveProcessService>();
 
-        services.AddTransient<BdziamPakResolveProcess>();
+        services.AddTransient<BdziamPakProcess>();
         services.AddExternalDependencyResolver();
         services.AddSingleton<BdziamPakService>();
         services.AddSingleton<DownloadService>(sp =>

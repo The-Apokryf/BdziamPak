@@ -6,17 +6,12 @@ namespace BdziamPak.Resolving.ResolveSteps.BuiltIn;
 /// <summary>
 /// Represents a built-in step in the resolving process that clones a Git repository for the package.
 /// </summary>
-public class CloneRepositoryStep(GitService gitService) : BdziamPakResolveStep
+public class CloneRepositoryStep(GitService gitService) : BdziamPakProcessStep
 {
     /// <summary>
     /// Gets the name of the step.
     /// </summary>
     public override string StepName => "CloneRepository";
-
-    /// <summary>
-    /// Gets the description of the step.
-    /// </summary>
-    public override string StepDescription => "Clones the repository for the package.";
 
     /// <summary>
     /// Determines whether this step can execute based on the provided context.
@@ -25,7 +20,7 @@ public class CloneRepositoryStep(GitService gitService) : BdziamPakResolveStep
     /// <returns>
     /// True if the context contains the "Repository" metadata; otherwise, false.
     /// </returns>
-    public override bool CanExecute(ICheckResolveContext context)
+    public override bool CanExecute(ICheckProcessingContext context)
     {
         return context.HasMetadata("Repository");
     }
@@ -35,7 +30,7 @@ public class CloneRepositoryStep(GitService gitService) : BdziamPakResolveStep
     /// </summary>
     /// <param name="context">The execution context containing the metadata and resolve directory.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    public override async Task ExecuteAsync(IExecutionResolveContext context)
+    public override async Task ExecuteAsync(IExecutionProcessingContext context)
     {
         // Update the status to indicate the cloning process has started
         context.UpdateStatus("Cloning repository...");

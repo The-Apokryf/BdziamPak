@@ -21,4 +21,9 @@
         <ProjectReference Include="..\BdziamPak\BdziamPak.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Endpoints\Requests\" />
+      <Folder Include="Endpoints\Responses\" />
+    </ItemGroup>
+
 </Project>

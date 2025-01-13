@@ -4,9 +4,9 @@ namespace BdziamPak.Resolving;
 
 /// <summary>
 /// Interface for executing resolve context in the BdziamPak resolving process.
-/// <see cref="BdziamPakResolveContext"/>
+/// <see cref="BdziamPakProcessingContext"/>
 /// </summary>
-public interface IExecutionResolveContext
+public interface IExecutionProcessingContext
 {
     /// <summary>
     /// Gets the metadata for the BdziamPak package.

@@ -23,7 +23,7 @@ public class BdziamPakServiceTests(ITestOutputHelper outputHelper) : BdziamTestB
         progress.ProgressChanged +=
             (p, e) => outputHelper.WriteLine("{0}, Progress: {1}", e.Percent, e.Message);
         var result =
-            await bdziamPakService.ResolveBdziamPakAsync(_goodMetadata.BdziamPakId, _goodMetadata.Version, progress);
+            await bdziamPakService.ResolveBdziamPakAsync(_goodMetadata.BdziamPakId, _goodMetadata.BdziamPakVersion.Version, progress);
 
         // Assert
         Assert.NotNull(result);

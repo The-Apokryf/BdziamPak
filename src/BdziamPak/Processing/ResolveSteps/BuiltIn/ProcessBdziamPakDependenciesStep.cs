@@ -7,7 +7,7 @@ namespace BdziamPak.Resolving.ResolveSteps.BuiltIn;
 /// Represents a step in the resolving process that resolves BdziamPak dependencies for the package.
 /// </summary>
 /// <param name="bdziamPakService">The service used to resolve BdziamPak dependencies.</param>
-public class ResolveBdziamPakDependenciesStep(BdziamPakService bdziamPakService) : BdziamPakResolveStep
+public class ProcessBdziamPakDependenciesStep(BdziamPakService bdziamPakService) : BdziamPakProcessStep
 {
     /// <summary>
     /// Gets the name of the step.
@@ -15,16 +15,11 @@ public class ResolveBdziamPakDependenciesStep(BdziamPakService bdziamPakService)
     public override string StepName => "ResolveBdziamPakDependencies";
 
     /// <summary>
-    /// Gets the description of the step.
-    /// </summary>
-    public override string StepDescription => "Resolves BdziamPak dependencies for the package.";
-
-    /// <summary>
     /// Determines whether the step can be executed based on the provided context.
     /// </summary>
     /// <param name="context">The context to check for execution eligibility.</param>
     /// <returns><c>true</c> if the step can be executed; otherwise, <c>false</c>.</returns>
-    public override bool CanExecute(ICheckResolveContext context)
+    public override bool CanExecute(ICheckProcessingContext context)
     {
         return context.HasMetadata("Dependencies");
     }
@@ -34,11 +29,11 @@ public class ResolveBdziamPakDependenciesStep(BdziamPakService bdziamPakService)
     /// </summary>
     /// <param name="context">The context for the execution of the step.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public override async Task ExecuteAsync(IExecutionResolveContext context)
+    public override async Task ExecuteAsync(IExecutionProcessingContext context)
     {
         context.UpdateStatus("Resolving BdziamPak dependencies...");
 
-        var dependencies = context.BdziamPakMetadata.GetMetadata<List<BdziamPakDependency>>("Dependencies");
+        var dependencies = context.BdziamPakMetadata.BdziamPakVersion.GetMetadata<List<BdziamPakDependency>>("Dependencies");
         foreach (var dependency in dependencies)
         {
             var progress = new Progress<BdziamPakResolveProgress>();

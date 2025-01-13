@@ -2,16 +2,16 @@
 
 /// <summary>
 /// Interface for checking if a resolve step should be executed.
-/// <see cref="BdziamPakResolveContext"/>
+/// <see cref="BdziamPakProcessingContext"/>
 /// </summary>
-public interface ICheckResolveContext
+public interface ICheckProcessingContext
 {
     /// <summary>
     /// Checks if a specific resolve step was completed.
     /// </summary>
     /// <typeparam name="TStep">The type of the resolve step.</typeparam>
     /// <returns>true if the step was completed; otherwise, false.</returns>
-    public bool WasCompleted<TStep>() where TStep : BdziamPakResolveStep;
+    public bool WasCompleted<TStep>() where TStep : BdziamPakProcessStep;
 
     /// <summary>
     /// Checks if a file exists in the resolve directory.
