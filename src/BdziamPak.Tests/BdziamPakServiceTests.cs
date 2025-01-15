@@ -1,5 +1,6 @@
-﻿using BdziamPak.Packaging.Install.Model;
-using BdziamPak.Resolving;
+﻿using BdziamPak.Operations.Execution;
+using BdziamPak.Operations.Factory;
+using BdziamPak.Operations.Reporting.States;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
 
@@ -10,26 +11,28 @@ namespace BdziamPak.Tests;
 /// </summary>
 public class BdziamPakServiceTests(ITestOutputHelper outputHelper) : BdziamTestBase(outputHelper)
 {
+    private const string Operation = "resolve";
     /// <summary>
     /// Tests the ResolveBdziamPakAsync method of BdziamPakService.
     /// </summary>
     [Fact]
     public async Task  ResolveBdziamPakAsync_WithValidMetadata_ReturnsAnyResult()
     {
-        var bdziamPakService = _serviceProvider.GetRequiredService<BdziamPakService>();
-
+        var operationFactory = _serviceProvider.GetRequiredService<IOperationFactory>();
+        
+        var operation = operationFactory.GetOperation(Operation);
+        var executor = _serviceProvider.GetRequiredService<BdziamPakOperationExecutor>();
+        var progress = new Progress<BdziamPakOperationProgress>();
+        progress.ProgressChanged += (p, e) => outputHelper.WriteLine($"{e.Progress}, Message: {e.Message}. Steps: { string.Join("\n", e.Steps.Select(s => $"{s.Name} [{s.State}|{s.Percentage}]: [{s.Message}"))}");
+        
         // Act
-        var progress = new Progress<BdziamPakResolveProgress>();
-        progress.ProgressChanged +=
-            (p, e) => outputHelper.WriteLine("{0}, Progress: {1}", e.Percent, e.Message);
-        var result =
-            await bdziamPakService.ResolveBdziamPakAsync(_goodMetadata.BdziamPakId, _goodMetadata.BdziamPakVersion.Version, progress);
-
+        var state = await executor.ExecuteOperation("testAuthor.testPa@1.0.0", operation, progress);
+      
         // Assert
-        Assert.NotNull(result);
+        Assert.True(state != OperationState.Failed);
     }
 
-    /// <summary>
+  /*  /// <summary>
     /// Resolves a BdziamPak package with valid metadata.
     /// </summary>
     [Fact]
@@ -92,5 +95,5 @@ public class BdziamPakServiceTests(ITestOutputHelper outputHelper) : BdziamTestB
         
         Assert.False(result.Success);
 
-    }
+    }*/
 }

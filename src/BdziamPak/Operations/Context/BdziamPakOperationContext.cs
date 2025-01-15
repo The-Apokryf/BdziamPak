@@ -1,45 +1,51 @@
-﻿using BdziamPak.Packages.Packaging.Model;
-using BdziamPak.Resolving.ResolveSteps;
-using BdziamPak.Structure;
+﻿using BdziamPak.Operations.Steps;
+using BdziamPak.PackageModel;
 
-namespace BdziamPak.Resolving;
+namespace BdziamPak.Operations.Context;
 
 /// <summary>
 /// Represents the context for resolving a BdziamPak package.
 /// </summary>
-/// <param name="bdziamPakProcess">The resolve process.</param>
+/// <param name="bdziamPakOperation">The resolve process.</param>
 /// <param name="directory">The directory where the package is located.</param>
-public class BdziamPakProcessingContext(BdziamPakProcess bdziamPakProcess, BdziamPakDirectory directory)
-    : IExecutionProcessingContext, ICheckProcessingContext
+public class BdziamPakOperationContext(BdziamPakOperation bdziamPakOperation)
+    : IExecuteOperationContext, IValidationContext
 {
-    /// <summary>
-    /// Gets the current resolve status.
-    /// </summary>
-    public ResolveStatus Status { get; protected set; } = new();
+    private Dictionary<string, object> _contextParameters = new();
     
+    public T? GetContextParameter<T>(string name)
+    {
+        if (!_contextParameters.TryGetValue(name, out var value))
+        {
+            return default;
+        }
+
+        if (value is T typedValue)
+        {
+            return typedValue;
+        }
+
+        return default;
+    }
+
+    public void SetContextParameter<T>(string name, T value)
+    {
+        if (!_contextParameters.TryAdd(name, value!))
+        {
+           _contextParameters[name] = value!;
+        }
+    }
     
-
-    /// <summary>
-    /// Gets the current resolve state.
-    /// </summary>
-    public ResolveState State { get; protected set; }
-
-    /// <summary>
-    /// Gets the list of completed resolve steps.
-    /// </summary>
-    public List<BdziamPakProcessStep> CompletedResolveSteps { get; } = new();
-
     /// <summary>
     /// Checks if a specific resolve step was completed.
     /// </summary>
     /// <typeparam name="TStep">The type of the resolve step.</typeparam>
     /// <returns>true if the step was completed; otherwise, false.</returns>
-    public bool WasCompleted<TStep>() where TStep : BdziamPakProcessStep
+    public bool WasCompleted<TStep>() where TStep : BdziamPakOperationStep
     {
-        var result = CompletedResolveSteps.FirstOrDefault(step => step.GetType() == typeof(TStep));
+        var result = bdziamPakOperation.CompletedSteps.FirstOrDefault(step => step.GetType() == typeof(TStep));
         if (result == null)
         {
-            Skip($"Step cannot abort, because the step {result.StepName} was not completed");
             return false;
         }
 
@@ -56,7 +62,6 @@ public class BdziamPakProcessingContext(BdziamPakProcess bdziamPakProcess, Bdzia
         var result = new FileInfo(Path.Combine(ResolveDirectory.FullName, relativePath)).Exists;
         if (!result)
         {
-            Skip($"Step cannot continue, because the file {relativePath} was not found");
             return false;
         }
 
@@ -73,7 +78,6 @@ public class BdziamPakProcessingContext(BdziamPakProcess bdziamPakProcess, Bdzia
         var result = new DirectoryInfo(Path.Combine(ResolveDirectory.FullName, relativePath)).Exists;
         if (!result)
         {
-            Skip($"Step cannot continue, because the directory {relativePath} was not found");
             return false;
         }
 
@@ -90,7 +94,6 @@ public class BdziamPakProcessingContext(BdziamPakProcess bdziamPakProcess, Bdzia
         var result = BdziamPakMetadata[RequestedVersion]!.HasMetadata(key);
         if (!result)
         {
-            Skip($"Step cannot continue, because the metadata {key} is required");
             return false;
         }
 
@@ -98,21 +101,9 @@ public class BdziamPakProcessingContext(BdziamPakProcess bdziamPakProcess, Bdzia
     }
 
     /// <summary>
-    /// Updates the resolve status with a message and optional percentage.
-    /// </summary>
-    /// <param name="message">The status message.</param>
-    /// <param name="percent">The optional percentage.</param>
-    public void UpdateStatus(string message, int? percent = null)
-    {
-        Status.AddStatus(Status.CurrentStep, message, percent);
-    }
-
-    /// <summary>
     /// Gets the resolve directory.
     /// </summary>
-    public DirectoryInfo ResolveDirectory => new(Path.Combine(directory.PaksDirectory.FullName,
-        $"{BdziamPakMetadata.BdziamPakId}@{RequestedVersion}"));
-
+    public DirectoryInfo ResolveDirectory { get; set; }
     /// <summary>
     /// Gets or sets the metadata for the BdziamPak package.
     /// </summary>
@@ -122,29 +113,6 @@ public class BdziamPakProcessingContext(BdziamPakProcess bdziamPakProcess, Bdzia
     /// Gets or sets the Version for the requested BdziamPak package.
     /// </summary>
     public string RequestedVersion { get; set; }
-
-    
-
-    /// <summary>
-    /// Marks the resolve process as failed with a message.
-    /// </summary>
-    /// <param name="message">The failure message.</param>
-    public void Fail(string message)
-    {
-        State = ResolveState.Failed;
-        Status.AddStatus(Status.CurrentStep, message);
-        bdziamPakProcess.StepStopped(true, this);
-    }
-
-    /// <summary>
-    /// Skips the current step with a message.
-    /// </summary>
-    /// <param name="message">The skip message.</param>
-    public void Skip(string message)
-    {
-        Status.AddStatus(Status.CurrentStep, message);
-        bdziamPakProcess.StepStopped(false, this);
-    }
 
     /// <summary>
     /// Gets a file from the resolve directory.
@@ -165,17 +133,7 @@ public class BdziamPakProcessingContext(BdziamPakProcess bdziamPakProcess, Bdzia
     {
         return new DirectoryInfo(Path.Combine(ResolveDirectory.FullName, relativePath));
     }
-
-    /// <summary>
-    /// Completes the current resolve step.
-    /// </summary>
-    public void Complete()
-    {
-        CompletedResolveSteps.Add(bdziamPakProcess?.CurrentStep);
-        Status.AddStatus(Status.CurrentStep, "Step completed");
-        bdziamPakProcess.StepResolveCompleted(this);
-    }
-
+    
     /// <summary>
     /// Gets the metadata value for the specified key.
     /// </summary>
@@ -185,18 +143,7 @@ public class BdziamPakProcessingContext(BdziamPakProcess bdziamPakProcess, Bdzia
     public T? GetMetadata<T>(string key)
     {
         var result = BdziamPakMetadata[RequestedVersion]!.GetMetadata<T>(key);
-        if (result == null) Skip($"Step cannot abort, because the metadata {key} is required");
         return result;
     }
-
-    /// <summary>
-    /// Updates the resolve status with a message and optional percentage.
-    /// </summary>
-    /// <param name="step">The current step.</param>
-    /// <param name="message">The status message.</param>
-    /// <param name="percent">The optional percentage.</param>
-    public void UpdateStatus(int step, string message, int? percent = null)
-    {
-        Status.AddStatus(Status.CurrentStep, message);
-    }
+    
 }

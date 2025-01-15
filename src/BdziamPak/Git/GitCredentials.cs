@@ -1,11 +1,13 @@
 ﻿/// <summary>
 /// Provides functionality for managing Git credentials.
 /// </summary>
+
+using BdziamPak.Directory;
+
 namespace BdziamPak.Git
 {
     using System.Text.Json;
     using BdziamPak.Git.Model;
-    using BdziamPak.Structure;
     using Microsoft.Extensions.Logging;
 
     /// <summary>

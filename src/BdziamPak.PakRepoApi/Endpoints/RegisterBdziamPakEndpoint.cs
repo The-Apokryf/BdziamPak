@@ -1,4 +1,4 @@
-﻿using BdziamPak.Packages.Packaging.Model;
+﻿using BdziamPak.PackageModel;
 using BdziamPak.PakRepoApi.Services;
 using FastEndpoints;
 

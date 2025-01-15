@@ -1,4 +1,4 @@
-﻿namespace BdziamPak.Packages.Packaging.Model;
+﻿namespace BdziamPak.PackageModel;
 
 /// <summary>
 /// Represents metadata for a BdziamPak package.

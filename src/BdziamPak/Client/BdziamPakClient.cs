@@ -1,11 +1,8 @@
-﻿using System;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
-using BdziamPak.Packages.Index.Model;
-using BdziamPak.Packages.Packaging.Model;
+﻿using System.Net.Http.Json;
+using BdziamPak.PackageModel;
+using BdziamPak.Sources.Model;
 
-using System;
+namespace BdziamPak.Client;
 
 /// <summary>
 /// Represents a client for interacting with the BdziamPak API.

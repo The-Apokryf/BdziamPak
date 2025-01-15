@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
+using BdziamPak.NuGetPackages.Cache;
+using BdziamPak.NuGetPackages.Download.Model;
 using BdziamPak.NuGetPackages.Logging;
-using BdziamPak.NuGetPackages.Model;
-using BdziamPak.Packages.NuGet;
 using Downloader;
 using Microsoft.Extensions.Logging;
 using NuGet.Configuration;
@@ -11,7 +11,7 @@ using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 using ILogger = NuGet.Common.ILogger;
 
-namespace BdziamPak.NuGetPackages;
+namespace BdziamPak.NuGetPackages.Download;
 
 /// <summary>
 /// Provides functionality for downloading NuGet packages.

@@ -1,4 +1,4 @@
-﻿namespace BdziamPak.Packages.Packaging.Model;
+﻿namespace BdziamPak.PackageModel.Builtin;
 
 /// <summary>
 /// Represents a NuGet dependency in the BdziamPak package.

@@ -1,12 +1,15 @@
 ﻿using Bdziam.ExternalDependencyResolver;
 using BdziamPak.Configuration;
+using BdziamPak.Directory;
 using BdziamPak.Git;
 using BdziamPak.NuGetPackages;
+using BdziamPak.NuGetPackages.Cache;
 using BdziamPak.NuGetPackages.Dependencies;
+using BdziamPak.NuGetPackages.Download;
 using BdziamPak.NuGetPackages.Unpack;
-using BdziamPak.Packages.NuGet;
-using BdziamPak.Resolving;
-using BdziamPak.Structure;
+using BdziamPak.Operations;
+using BdziamPak.Operations.Execution;
+using BdziamPak.Operations.Factory;
 using Downloader;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,7 +28,7 @@ public static class BdziamPakExtensions
     /// <param name="customResolveProcessService">An optional custom resolve process service.</param>
     /// <returns>The service collection with the added services.</returns>
     public static IServiceCollection AddBdziamPak(this IServiceCollection services,
-        Action<BdziamPakConfiguration> configuration, IResolveProcessService? customResolveProcessService = null)
+        Action<BdziamPakConfiguration> configuration, IOperationFactory? customFactory = null)
     {
         var config = new BdziamPakConfiguration(".bdziampak");
         configuration.Invoke(config);
@@ -37,15 +40,15 @@ public static class BdziamPakExtensions
         services.AddSingleton<NuGetDownloadService>();
         services.AddSingleton<NuGetDependencyResolver>();
         services.AddSingleton<NuGetUnpackService>();
-        services.AddSingleton<Sources>();
-        if (customResolveProcessService != null)
-            services.AddSingleton<IResolveProcessService>(customResolveProcessService);
+        services.AddSingleton<Sources.Sources>();
+        if (customFactory != null)
+            services.AddSingleton<IOperationFactory>(customFactory);
         else
-            services.AddSingleton<IResolveProcessService, ResolveProcessService>();
+            services.AddSingleton<IOperationFactory, BuiltInOperationsFactory>();
 
-        services.AddTransient<BdziamPakProcess>();
+        services.AddSingleton<BdziamPakOperationExecutor>();
+        
         services.AddExternalDependencyResolver();
-        services.AddSingleton<BdziamPakService>();
         services.AddSingleton<DownloadService>(sp =>
             new DownloadService(new DownloadConfiguration { ParallelDownload = true, ParallelCount = 10 }));
 

@@ -1,14 +1,19 @@
-﻿using BdziamPak.NuGetPackages;
+﻿using BdziamPak.Directory;
 using BdziamPak.NuGetPackages.Dependencies;
-using BdziamPak.NuGetPackages.Model;
+using BdziamPak.NuGetPackages.Download;
+using BdziamPak.NuGetPackages.Download.Model;
 using BdziamPak.NuGetPackages.Unpack;
-using BdziamPak.Packages.Packaging.Model;
-using BdziamPak.Structure;
+using BdziamPak.Operations.Context;
+using BdziamPak.Operations.Reporting.Progress;
+using BdziamPak.Operations.Reporting.States;
+using BdziamPak.Operations.Steps.Validation;
+using BdziamPak.Operations.Steps.Validation.BuiltIn;
+using BdziamPak.PackageModel.Builtin;
 using NuGet.Configuration;
 using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 
-namespace BdziamPak.Resolving.ResolveSteps.BuiltIn;
+namespace BdziamPak.Operations.Steps.BuiltIn;
 
 /// <summary>
 /// Represents a step in the resolving process that resolves NuGet dependencies for the package.
@@ -17,42 +22,33 @@ namespace BdziamPak.Resolving.ResolveSteps.BuiltIn;
 /// <param name="nugetDownloadService">The service used to download NuGet packages.</param>
 /// <param name="unpackService">The service used to unpack NuGet packages.</param>
 /// <param name="bdziamPakDirectory">The directory where the BdziamPak package is located.</param>
-public class ProcessNuGetDependenciesStep(
+public class InstallNuGetPackage(
     NuGetDependencyResolver dependencyResolver,
     NuGetDownloadService nugetDownloadService,
     NuGetUnpackService unpackService,
-    BdziamPakDirectory bdziamPakDirectory) : BdziamPakProcessStep
+    BdziamPakDirectory bdziamPakDirectory) : BdziamPakOperationStep
 {
     /// <summary>
     /// Gets the name of the step.
     /// </summary>
     public override string StepName => "ResolveNuGetDependencies";
 
-    /// <summary>
-    /// Determines whether the step can be executed based on the provided context.
-    /// </summary>
-    /// <param name="context">The context to check for execution eligibility.</param>
-    /// <returns><c>true</c> if the step can be executed; otherwise, <c>false</c>.</returns>
-    public override bool CanExecute(ICheckProcessingContext context)
+    private const string NuGetMetadataKey = "NuGetPackage";
+    public override void ValidateOperation(OperationValidationContext context)
     {
-        return context.HasMetadata("NuGetPackage");
+        context.AddCondition<HasMetadataCondition>(condition => condition.RequireMetadata(NuGetMetadataKey));
     }
 
-    /// <summary>
-    /// Executes the step asynchronously.
-    /// </summary>
-    /// <param name="context">The context for the execution of the step.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    public override async Task ExecuteAsync(IExecutionProcessingContext context)
+    public override async Task ExecuteAsync(IExecuteOperationContext context, IProgress<StepProgress> progress, CancellationToken cancellationToken = default)
     {
-        context.UpdateStatus("Resolving NuGet dependencies...");
+       progress.Report(("Resolving NuGet Dependencies...", 0));
 
         var metadata = context.BdziamPakMetadata;
         var repository = new SourceRepositoryProvider(
             new PackageSourceProvider(Settings.LoadDefaultSettings(null)),
             Repository.Provider.GetCoreV3()
         ).GetRepositories().First();
-        var nugetDependency = metadata.BdziamPakVersion.GetMetadata<BdziamPakNuGetDependency>("NuGetPackage")!;
+        var nugetDependency = context.GetMetadata<BdziamPakNuGetDependency>("NuGetPackage")!;
         var packages = await dependencyResolver.LoadPackageDependenciesAsync(
             nugetDependency.PackageId,
             NuGetVersion.Parse(nugetDependency.PackageVersion),
@@ -69,10 +65,24 @@ public class ProcessNuGetDependenciesStep(
                 nugetProgress
             );
 
+            var currentPercent = 0;
+            
+            nugetProgress.ProgressChanged += (sender, downloadProgress) =>
+            {
+                currentPercent = downloadProgress.Percent ?? 0;
+                progress.Report(("Downloading NuGet Package...", currentPercent));
+            };
+
+            var unpackProgress = new Progress<string>();
+            unpackProgress.ProgressChanged += (sender, s) =>
+            {
+                progress.Report(($"Unpacking ({s})", currentPercent));
+            };
             var unpackPath = Path.Combine(context.ResolveDirectory.FullName, "Lib");
-            await unpackService.UnpackPackageAsync(unpackPath, package, CancellationToken.None);
+            await unpackService.UnpackPackageAsync(unpackPath, package, unpackProgress, cancellationToken);
         }
 
-        context.Complete();
+        StepState = StepState.Success;
     }
+
 }

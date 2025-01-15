@@ -1,4 +1,4 @@
-﻿namespace BdziamPak.Packages.Packaging.Model;
+﻿namespace BdziamPak.PackageModel.Builtin;
 
 /// <summary>
 ///     Reference to a git repository that needs to be downloaded with BdziamPak

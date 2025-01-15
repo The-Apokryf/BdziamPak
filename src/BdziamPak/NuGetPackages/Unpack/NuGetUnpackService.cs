@@ -1,6 +1,7 @@
-﻿using BdziamPak.NuGetPackages.Dependencies;
+﻿using BdziamPak.Directory;
+using BdziamPak.NuGetPackages.Cache;
+using BdziamPak.NuGetPackages.Dependencies;
 using BdziamPak.NuGetPackages.Logging;
-using BdziamPak.Packages.NuGet;
 using Microsoft.Extensions.Logging;
 using NuGet.Packaging;
 using NuGet.Protocol.Core.Types;
@@ -25,7 +26,7 @@ public class NuGetUnpackService(ILogger<NuGetUnpackService> logger, NuGetCache n
     /// <param name="packageInfo">The package information.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the path where the package was extracted.</returns>
-    public async Task<string> UnpackPackageAsync(string extractPath, SourcePackageDependencyInfo packageInfo, CancellationToken cancellationToken = default)
+    public async Task UnpackPackageAsync(string extractPath, SourcePackageDependencyInfo packageInfo,IProgress<string> progress, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -33,12 +34,14 @@ public class NuGetUnpackService(ILogger<NuGetUnpackService> logger, NuGetCache n
 
             if (string.IsNullOrEmpty(extractPath))
             {
+                progress.Report("Extract path cannot be null or empty");
                 logger.LogError("Extract path cannot be null or empty");
                 throw new ArgumentNullException(nameof(extractPath));
             }
 
             if (packageInfo == null)
             {
+                progress.Report("Package information cannot be null");
                 logger.LogError("Package information cannot be null");
                 throw new ArgumentNullException(nameof(packageInfo));
             }
@@ -48,9 +51,11 @@ public class NuGetUnpackService(ILogger<NuGetUnpackService> logger, NuGetCache n
             logger.LogDebug("Package path {packagePath}", packagePath);
             if (string.IsNullOrEmpty(packagePath) || !File.Exists(packagePath))
             {
+                progress.Report($"Package {packageInfo.Id} v {packageInfo.Version} not found in cache.");
                 logger.LogError("Package {PackageId} {Version} not found in cache", packageInfo.Id, packageInfo.Version);
                 throw new InvalidOperationException($"Package {packageInfo.Id} {packageInfo.Version} not found in cache");
             }
+            progress.Report($"Creating package reader for {packageInfo.Id}");
 
             logger.LogDebug("Creating package reader for {PackagePath}", packagePath);
             using var packageReader = new PackageArchiveReader(packagePath);
@@ -59,13 +64,16 @@ public class NuGetUnpackService(ILogger<NuGetUnpackService> logger, NuGetCache n
 
             if (bestFrameworkMatch == null)
             {
+                progress.Report($"No compatible framework found in package {packageInfo.Id} {packageInfo.Version}");
+
                 logger.LogError("No compatible framework found in package {PackageId} {Version}", packageInfo.Id, packageInfo.Version);
                 throw new InvalidOperationException($"No compatible framework found in package {packageInfo.Id} {packageInfo.Version}");
             }
 
             logger.LogInformation("Selected best framework match: {Framework}", bestFrameworkMatch);
+            progress.Report($"Selected best framework match: {bestFrameworkMatch}");
 
-            Directory.CreateDirectory(extractPath);
+            System.IO.Directory.CreateDirectory(extractPath);
 
             // Get all files from the package
             var libItems = packageReader.GetLibItems().ToList();
@@ -73,9 +81,11 @@ public class NuGetUnpackService(ILogger<NuGetUnpackService> logger, NuGetCache n
 
             if (!bestFrameworkFiles.Any())
             {
-                logger.LogWarning("No library files found for framework {Framework} in package {PackageId} {Version}", bestFrameworkMatch, packageInfo.Id, packageInfo.Version);
-                return extractPath;
+                progress.Report($"No library files found for framework {bestFrameworkMatch.Framework} in package { packageInfo.Id} {packageInfo.Version}");
+
+                logger.LogWarning("No library files found for framework {Framework} in package {PackageId} {Version}", bestFrameworkMatch.Framework, packageInfo.Id, packageInfo.Version);
             }
+            progress.Report($"Found  { bestFrameworkFiles.Count} files to extract for framework {bestFrameworkMatch.Framework}");
 
             logger.LogDebug("Found {Count} files to extract for framework {Framework}", bestFrameworkFiles.Count, bestFrameworkMatch);
 
@@ -101,8 +111,6 @@ public class NuGetUnpackService(ILogger<NuGetUnpackService> logger, NuGetCache n
             }
 
             logger.LogInformation("Successfully extracted {FileCount} files from package {PackageId} {Version} to {Path}", extractedFiles.Count, packageInfo.Id, packageInfo.Version, extractPath);
-
-            return extractPath;
         }
         catch (Exception ex)
         {

@@ -1,10 +1,12 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Text.Json;
-using BdziamPak.Packages.Index.Model;
-using BdziamPak.Packages.Packaging.Model;
-using BdziamPak.Structure;
+using BdziamPak.Directory;
+using BdziamPak.PackageModel;
+using BdziamPak.Sources.Model;
 using Microsoft.Extensions.Logging;
+
+namespace BdziamPak.Sources;
 
 /// <summary>
 /// Manages the sources for BdziamPak packages, including caching, loading, and searching.
@@ -55,13 +57,13 @@ public class Sources : IDisposable
     /// </summary>
     /// <param name="file">The file to load.</param>
     /// <returns>The loaded source index, or null if an error occurs.</returns>
-    private async Task<BdziamPakSourceIndex?> LoadSourceFileAsync(FileInfo file)
+    private async Task<BdziamPakSourceIndex?> LoadSourceFileAsync(FileInfo file, CancellationToken cancellationToken)
     {
         _logger.LogDebug("Loading source file: {FilePath}", file.FullName);
         try
         {
             await using var stream = file.OpenRead();
-            var source = await JsonSerializer.DeserializeAsync<BdziamPakSourceIndex>(stream, _jsonOptions);
+            var source = await JsonSerializer.DeserializeAsync<BdziamPakSourceIndex>(stream, _jsonOptions, cancellationToken: cancellationToken);
             _logger.LogDebug("Successfully loaded source file: {FilePath}, Source Name: {SourceName}",
                 file.FullName, source?.Name ?? "null");
             return source;
@@ -76,7 +78,7 @@ public class Sources : IDisposable
     /// <summary>
     /// Refreshes the cache if needed.
     /// </summary>
-    private async Task RefreshCacheIfNeededAsync()
+    private async Task RefreshCacheIfNeededAsync(CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Attempting to acquire cache refresh lock");
         if (!await _cacheLock.WaitAsync(TimeSpan.FromSeconds(10)))
@@ -123,7 +125,7 @@ public class Sources : IDisposable
                     return;
                 }
 
-                var source = await LoadSourceFileAsync(file);
+                var source = await LoadSourceFileAsync(file, cancellationToken: cancellationToken);
                 if (source != null)
                 {
                     _logger.LogDebug("Updated cache for source: {SourceName}", sourceName);
@@ -144,7 +146,7 @@ public class Sources : IDisposable
     /// Lists the sources asynchronously.
     /// </summary>
     /// <returns>A list of source indexes.</returns>
-    public async Task<IReadOnlyList<BdziamPakSourceIndex>> ListSourcesAsync()
+    public async Task<IReadOnlyList<BdziamPakSourceIndex>> ListSourcesAsync(CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Listing sources, initiating cache refresh");
         await RefreshCacheIfNeededAsync();
@@ -171,7 +173,7 @@ public class Sources : IDisposable
                 return cached.Source;
             }
 
-            var source = await LoadSourceFileAsync(file);
+            var source = await LoadSourceFileAsync(file, cancellationToken);
             if (source != null)
             {
                 _logger.LogDebug("Caching newly loaded source: {SourceName}", sourceName);
@@ -191,7 +193,7 @@ public class Sources : IDisposable
     /// Registers a new source from a URL asynchronously.
     /// </summary>
     /// <param name="url">The URL of the source to register.</param>
-    public async Task RegisterSourceAsync(string url)
+    public async Task RegisterSourceAsync(string url, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Registering new source from URL: {Url}", url);
         try
@@ -210,7 +212,7 @@ public class Sources : IDisposable
             _sourcesDirectory.Create();
             var filePath = Path.Combine(_sourcesDirectory.FullName, $"{source.Name}.json");
 
-            await File.WriteAllTextAsync(filePath, sourceJson);
+            await File.WriteAllTextAsync(filePath, sourceJson, cancellationToken);
             _sourceCache[source.Name] = (source, DateTime.Now);
 
             _logger.LogInformation("Successfully registered source: {SourceName}", source.Name);

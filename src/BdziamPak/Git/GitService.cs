@@ -30,16 +30,17 @@ public class GitService
     /// <param name="commitHash">The commit hash to check out.</param>
     /// <returns>The target directory containing the cloned repository.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the specified commit is not found.</exception>
-    public DirectoryInfo CloneRepo(DirectoryInfo targetDir, string url, string commitHash)
+    public DirectoryInfo CloneRepo(DirectoryInfo targetDir, string url, string commitHash, IProgress<CloneRepositoryProgress> progress, CancellationToken cancellationToken)
     {
+        var cloneProgress = new CloneRepositoryProgress();
+
         try
         {
             if (!targetDir.Exists) targetDir.Create();
 
             logger.LogDebug("Cloning repository {RepoUrl}", url);
             var tempDir = new DirectoryInfo(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
-            Repository.Clone(url, tempDir.FullName, GetCloneOptions(url));
-
+            Repository.Clone(url, tempDir.FullName, GetCloneOptions(url, progress, cancellationToken, cloneProgress));
             using (var repo = new Repository(tempDir.FullName))
             {
                 var commit = repo.Lookup<Commit>(commitHash);
@@ -49,16 +50,25 @@ public class GitService
                     throw new InvalidOperationException($"Commit {commitHash} not found");
                 }
 
+                var checkoutOptions = new CheckoutOptions();
+                checkoutOptions.OnCheckoutProgress = (path, completedSteps, totalSteps) =>
+                {
+                    cloneProgress.CurrentStep = completedSteps;
+                    cloneProgress.TotalSteps = totalSteps;
+                    cloneProgress.Path = path;
+                    progress.Report(cloneProgress);
+                };
                 Commands.Checkout(repo, commit);
             }
 
             CopyFilesRecursively(tempDir, targetDir);
-            logger.LogDebug("Successfully cloned repository {RepoUrl} to {TargetDir}", url, targetDir.FullName);
-
+            cloneProgress.Message = "Repository cloned successfully";
+            progress.Report(cloneProgress);
             return targetDir;
         }
         catch (Exception ex)
         {
+            cloneProgress.Message = $"Error cloning repository {url}: {ex.Message}";
             logger.LogError(ex, "Error cloning repository {RepoUrl}", url);
             throw;
         }
@@ -69,10 +79,29 @@ public class GitService
     /// </summary>
     /// <param name="url">The URL of the Git repository.</param>
     /// <returns>The clone options.</returns>
-    private CloneOptions GetCloneOptions(string url)
+    private CloneOptions GetCloneOptions(string url, IProgress<CloneRepositoryProgress> progress, CancellationToken cancellationToken, CloneRepositoryProgress? cloneProgress = null)
     {
         var options = new CloneOptions();
-
+        if(cloneProgress == null)
+            cloneProgress = new CloneRepositoryProgress();
+        options.OnCheckoutProgress = (path, completedSteps, totalSteps) =>
+        {
+            cloneProgress.CurrentStep = completedSteps;
+            cloneProgress.TotalSteps = totalSteps;
+            cloneProgress.Path = path;
+            progress.Report(cloneProgress);
+        };
+        options.FetchOptions.OnTransferProgress = (transferProgress) =>
+        {
+            cloneProgress.Message = $"Transferring objects: {transferProgress.ReceivedObjects}/{transferProgress.TotalObjects}";
+            progress.Report(cloneProgress);
+            
+            if (cancellationToken.IsCancellationRequested)
+                return false;
+            return true;
+        };
+        
+        
         var credentials = gitCredentials.GetCredentialsForRepo(url);
         if (credentials != null)
             options.FetchOptions.CredentialsProvider = (url, user, cred) =>

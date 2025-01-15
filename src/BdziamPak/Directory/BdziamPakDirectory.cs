@@ -1,7 +1,6 @@
 ﻿using BdziamPak.Configuration;
-using System.IO;
 
-namespace BdziamPak.Structure;
+namespace BdziamPak.Directory;
 
 /// <summary>
 ///     Manages specified BdziamPak Directory

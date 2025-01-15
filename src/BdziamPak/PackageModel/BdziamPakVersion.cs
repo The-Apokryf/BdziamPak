@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace BdziamPak.Packages.Packaging.Model;
+namespace BdziamPak.PackageModel;
 /// <summary>
 /// Versions of given BdziamPak
 /// </summary>

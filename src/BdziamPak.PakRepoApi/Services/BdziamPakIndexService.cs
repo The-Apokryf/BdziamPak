@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
-using BdziamPak.Packages.Index.Model;
-using BdziamPak.Packages.Packaging.Model;
+using BdziamPak.PackageModel;
+using BdziamPak.Sources.Model;
 
 namespace BdziamPak.PakRepoApi.Services;
 

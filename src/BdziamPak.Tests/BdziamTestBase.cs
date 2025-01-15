@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
-using BdziamPak.Packages.Packaging.Model;
-using BdziamPak.Structure;
+using BdziamPak.Directory;
+using BdziamPak.PackageModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;

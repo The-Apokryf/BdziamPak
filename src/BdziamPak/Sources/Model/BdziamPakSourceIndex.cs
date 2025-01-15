@@ -1,6 +1,6 @@
-﻿using BdziamPak.Packages.Packaging.Model;
+﻿using BdziamPak.PackageModel;
 
-namespace BdziamPak.Packages.Index.Model;
+namespace BdziamPak.Sources.Model;
 
 /// <summary>
 /// Class representing json file structure - index of BdziamPak packages

@@ -1,7 +1,7 @@
-﻿using BdziamPak.Structure;
+﻿using BdziamPak.Directory;
 using Microsoft.Extensions.Logging;
 
-namespace BdziamPak.Packages.NuGet;
+namespace BdziamPak.NuGetPackages.Cache;
 
 /// <summary>
 /// Provides functionality for caching NuGet packages.
