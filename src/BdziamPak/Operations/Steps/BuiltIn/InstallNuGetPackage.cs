@@ -41,7 +41,7 @@ public class InstallNuGetPackage(
 
     public override async Task ExecuteAsync(IExecuteOperationContext context, IProgress<StepProgress> progress, CancellationToken cancellationToken = default)
     {
-       progress.Report(("Resolving NuGet Dependencies...", 0));
+       progress.Report(("Resolving NuGet Dependencies...", 0, new NuGetDownloadProgress("Starting download", 0)));
 
         var metadata = context.BdziamPakMetadata;
         var repository = new SourceRepositoryProvider(
@@ -70,13 +70,13 @@ public class InstallNuGetPackage(
             nugetProgress.ProgressChanged += (sender, downloadProgress) =>
             {
                 currentPercent = downloadProgress.Percent ?? 0;
-                progress.Report(("Downloading NuGet Package...", currentPercent));
+                progress.Report(("Downloading NuGet Package...", currentPercent, downloadProgress));
             };
 
             var unpackProgress = new Progress<string>();
             unpackProgress.ProgressChanged += (sender, s) =>
             {
-                progress.Report(($"Unpacking ({s})", currentPercent));
+                progress.Report(($"Unpacking ({s})", currentPercent, s));
             };
             var unpackPath = Path.Combine(context.ResolveDirectory.FullName, "Lib");
             await unpackService.UnpackPackageAsync(unpackPath, package, unpackProgress, cancellationToken);

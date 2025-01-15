@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using BdziamPak.PackageModel;
 using BdziamPak.Sources.Model;
-
+using Directory = System.IO.Directory;
 namespace BdziamPak.PakRepoApi.Services;
 
 /// <summary>
@@ -22,7 +22,7 @@ public class BdziamPakIndexService
     {
         _indexFilePath = Path.Combine(dataDirectory, IndexJson);
 
-        if (!Directory.Exists(dataDirectory)) Directory.CreateDirectory(dataDirectory);
+        if (!System.IO.Directory.Exists(dataDirectory)) System.IO.Directory.CreateDirectory(dataDirectory);
 
         if (!File.Exists(_indexFilePath))
         {
@@ -60,16 +60,20 @@ public class BdziamPakIndexService
     /// </summary>
     /// <param name="bdziamPakId">The ID of the metadata to remove.</param>
     /// <param name="version">The version of the metadata to remove.</param>
-    public async Task RemoveMetadataAsync(string bdziamPakId, string version)
+    public async Task RemoveVersionAsync(string bdziamPakId, string version)
     {
         await _semaphore.WaitAsync();
         try
         {
-            var metadata = _source.Paks.FirstOrDefault(p => p.BdziamPakId == bdziamPakId && p.BdziamPakVersion.Version == version);
+            var metadata = _source.Paks.FirstOrDefault(p => p.BdziamPakId == bdziamPakId && p.VersionExists(version));
             if (metadata != null)
             {
-                _source.Paks.Remove(metadata);
-                await SaveIndexAsync();
+                var foundVersion = metadata.Versions.FirstOrDefault(x => x.Version == version);
+                if (foundVersion != null)
+                {
+                    metadata.Versions.Remove(foundVersion);
+                    await SaveIndexAsync();
+                }
             }
         }
         finally

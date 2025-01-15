@@ -2,17 +2,12 @@
 
 public class BdziamPakRequest(string bdziamPakId, string version)
 {
-    public string BdziamPakId { get; protected set; }
-    public string Version { get; protected set; }
-    
-    public static implicit operator string(BdziamPakRequest request)
-    {
-        return $"{request.BdziamPakId}@{request.Version}";
-    }
+    public string BdziamPakId { get; protected set; } = bdziamPakId;
+    public string Version { get; protected set; } = version;
 
     public override string ToString()
     {
-        return this;
+        return $"{BdziamPakId}@{Version}";;
     }
 
     public static implicit operator BdziamPakRequest(string value)

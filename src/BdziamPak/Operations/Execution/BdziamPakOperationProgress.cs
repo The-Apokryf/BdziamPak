@@ -7,7 +7,7 @@ namespace BdziamPak.Operations.Execution;
 public class BdziamPakOperationProgress
 {
     public List<BdziamPakStepProgress> Steps { get; set; } = new();
-    public int Progress => Steps.Count(x => x.State is StepState.Success or StepState.Skipped) / Steps.Count;
+    public int Progress => Steps.FindIndex(x => x.State == StepState.Running) + 1 / Steps.Count;
     public string Message { get; set; }
 
     public void InitSteps(IEnumerable<BdziamPakOperationStep> steps)
@@ -32,7 +32,8 @@ public class BdziamPakOperationProgress
                 Name = step.StepName,
                 State = step.StepState,
                 Message = progress.Message,
-                Percentage = progress.Percentage
+                Percentage = progress.Percentage,
+                StepProgressModel = progress.ProgressModel
             });
             return;
         }
@@ -40,6 +41,7 @@ public class BdziamPakOperationProgress
         foundStep.State = step.StepState;
         foundStep.Message = progress.Message;
         foundStep.Percentage = progress.Percentage;
+        foundStep.StepProgressModel = progress.ProgressModel;
     }
 }
 
@@ -49,4 +51,5 @@ public class BdziamPakStepProgress
     public string Message { get; set; }
     public int Percentage { get; set; }
     public StepState State { get; set; }
+    public object? StepProgressModel { get; set; }
 }

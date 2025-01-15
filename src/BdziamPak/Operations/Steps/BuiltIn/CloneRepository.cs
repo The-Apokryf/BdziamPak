@@ -31,17 +31,12 @@ public class CloneRepository(GitService gitService) : BdziamPakOperationStep
         // Retrieve the repository metadata
         var repo = context.GetMetadata<BdziamPakRepositoryReference>(RepositoryMetadataKey)!;
         
-        progress.Report(($"Cloning repository {repo.Url}", 0));
         var cloneProgress = new Progress<CloneRepositoryProgress>();
-        
+        progress.Report(($"Cloning repository {repo.Url}", 0, new CloneRepositoryProgress(){Message = "Starting Process"}));
+
         cloneProgress.ProgressChanged += (sender, args) =>
         {
-            if (args == null)
-            {
-                return;
-            }
-            
-            progress.Report((args.Message, args.CurrentStep / args.TotalSteps)!);
+            progress.Report((args.Message, args.CloneProgress, args));
         };
         
         // Use GitService to clone the repository to the specified directory

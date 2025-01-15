@@ -16,7 +16,7 @@ public class BdziamPakServiceTests(ITestOutputHelper outputHelper) : BdziamTestB
     /// Tests the ResolveBdziamPakAsync method of BdziamPakService.
     /// </summary>
     [Fact]
-    public async Task  ResolveBdziamPakAsync_WithValidMetadata_ReturnsAnyResult()
+    public async Task ResolveBdziamPakAsync_WithValidMetadata_ReturnsAnyResult()
     {
         var operationFactory = _serviceProvider.GetRequiredService<IOperationFactory>();
         
@@ -26,13 +26,14 @@ public class BdziamPakServiceTests(ITestOutputHelper outputHelper) : BdziamTestB
         progress.ProgressChanged += (p, e) => outputHelper.WriteLine($"{e.Progress}, Message: {e.Message}. Steps: { string.Join("\n", e.Steps.Select(s => $"{s.Name} [{s.State}|{s.Percentage}]: [{s.Message}"))}");
         
         // Act
-        var state = await executor.ExecuteOperation("testAuthor.testPa@1.0.0", operation, progress);
+        var state = await executor.ExecuteOperation("TestAuthor.testPak@1.0.0", operation, progress);
       
         // Assert
         Assert.True(state != OperationState.Failed);
     }
 
-  /*  /// <summary>
+    /*
+    /// <summary>
     /// Resolves a BdziamPak package with valid metadata.
     /// </summary>
     [Fact]

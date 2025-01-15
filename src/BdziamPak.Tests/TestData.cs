@@ -1,4 +1,6 @@
-﻿namespace BdziamPak.Tests;
+﻿using BdziamPak.PackageModel;
+
+namespace BdziamPak.Tests;
 
 /// <summary>
 /// Provides test data for BdziamPak unit tests.
@@ -12,16 +14,22 @@ public static class TestData
     {
         Name = "testPak",
         Author = "TestAuthor",
-        Version = "1.0.0",
-        Repository = new
+        Versions = new object[]
         {
-            Url = "https://github.com/pmikstacki/SliccDB.git",
-            CommitHash = "f5c1e7c"
-        },
-        NuGetPackage = new
-        {
-            PackageId = "SliccDB",
-            PackageVersion = "0.1.1.4"
+            new
+            {
+                Version = "1.0.0",
+                Repository = new
+                {
+                    Url = "https://github.com/pmikstacki/SliccDB.git",
+                    CommitHash = "f5c1e7c"
+                },
+                NuGetPackage = new
+                {
+                    PackageId = "SliccDB",
+                    PackageVersion = "0.1.1.4"
+                }
+            }
         }
     };
 

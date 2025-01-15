@@ -53,8 +53,7 @@ public class GitService
                 var checkoutOptions = new CheckoutOptions();
                 checkoutOptions.OnCheckoutProgress = (path, completedSteps, totalSteps) =>
                 {
-                    cloneProgress.CurrentStep = completedSteps;
-                    cloneProgress.TotalSteps = totalSteps;
+                    cloneProgress.CheckoutProgress = completedSteps / Math.Max(totalSteps, 1);
                     cloneProgress.Path = path;
                     progress.Report(cloneProgress);
                 };
@@ -86,14 +85,15 @@ public class GitService
             cloneProgress = new CloneRepositoryProgress();
         options.OnCheckoutProgress = (path, completedSteps, totalSteps) =>
         {
-            cloneProgress.CurrentStep = completedSteps;
-            cloneProgress.TotalSteps = totalSteps;
+            cloneProgress.Message = "Checking out files...";
+            cloneProgress.CheckoutProgress = completedSteps / Math.Max(totalSteps, 1);
             cloneProgress.Path = path;
             progress.Report(cloneProgress);
         };
         options.FetchOptions.OnTransferProgress = (transferProgress) =>
         {
-            cloneProgress.Message = $"Transferring objects: {transferProgress.ReceivedObjects}/{transferProgress.TotalObjects}";
+            cloneProgress.FetchProgress = transferProgress.ReceivedObjects / Math.Max(transferProgress.TotalObjects, 1);
+            cloneProgress.Message = $"Transferring objects... ({transferProgress.ReceivedBytes} bytes received)";
             progress.Report(cloneProgress);
             
             if (cancellationToken.IsCancellationRequested)

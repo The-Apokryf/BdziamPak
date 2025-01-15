@@ -38,7 +38,7 @@ public class RemoveBdziamPakEndpoint(BdziamPakIndexService indexService, IConfig
         var bdziamPakId = Route<string>("bdziamPakId");
         var version = Route<string>("version");
 
-        await indexService.RemoveMetadataAsync(bdziamPakId, version);
+        await indexService.RemoveVersionAsync(bdziamPakId, version);
         await SendOkAsync(ct);
     }
 }

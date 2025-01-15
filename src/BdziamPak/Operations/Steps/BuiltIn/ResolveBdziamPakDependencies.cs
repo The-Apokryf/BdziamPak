@@ -26,7 +26,7 @@ public class ResolveBdziamPakDependencies(BdziamPakOperationExecutor executor) :
 
     public override async Task ExecuteAsync(IExecuteOperationContext context, IProgress<StepProgress> progress, CancellationToken cancellationToken = default)
     {
-        progress.Report(("Resolving BdziamPak dependencies...", 0));
+        progress.Report(("Resolving BdziamPak dependencies...", 0, "Resolving BdziamPak dependencies..."));
 
         var dependencies = context.GetMetadata<List<BdziamPakDependency>>(DependenciesMetadataKey);
         foreach (var dependency in dependencies)

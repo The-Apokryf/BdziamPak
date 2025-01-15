@@ -47,7 +47,7 @@ public class BdziamPakOperationExecutor(Sources.Sources sources, BdziamPakDirect
         {
             BdziamPakMetadata = bdziamPak,
             RequestedVersion = requestedBdziamPak.Version,
-            ResolveDirectory = new DirectoryInfo(Path.Combine(bdziamPakDirectory.PaksDirectory.FullName, requestedBdziamPak))
+            ResolveDirectory = new DirectoryInfo(Path.Combine(bdziamPakDirectory.PaksDirectory.FullName, requestedBdziamPak.ToString()))
         };
 
         foreach (var step in operation.Steps)
@@ -57,7 +57,7 @@ public class BdziamPakOperationExecutor(Sources.Sources sources, BdziamPakDirect
             progressModel.UpdateStep(step, ($"Executing step {step.StepName}", stepProgressPercentage));
             var stepCancellationTokenSource = new CancellationTokenSource();
             _cancellationTokenSource.Token.Register(() => stepCancellationTokenSource.Cancel());
-            
+
             if (ct.IsCancellationRequested)
             {
                 progressModel.UpdateStep(step, ($"Executing step {step.StepName}", stepProgressPercentage));
@@ -72,14 +72,15 @@ public class BdziamPakOperationExecutor(Sources.Sources sources, BdziamPakDirect
             {
                 stepProgressPercentage = args.Percentage;
                 progressModel.UpdateStep(step, args);
-                if(step.StepState == StepState.Failed)
+                progress.Report(progressModel);
+                if (step.StepState == StepState.Failed)
                 {
                     _cancellationTokenSource.Cancel();
                 }
-                
+
             };
-            
-            var validationProgress = new Progress<ConditionValidationProgress>();
+
+            var validationProgress = new Progress<ConditionValidationResult>();
             validationProgress.ProgressChanged += (sender, conditionValidationProgress) =>
             {
                 if (!conditionValidationProgress.CanExecute)
@@ -87,21 +88,33 @@ public class BdziamPakOperationExecutor(Sources.Sources sources, BdziamPakDirect
                     progressModel.UpdateStep(step,
                         ($"Cannot execute step {step}, Details: {conditionValidationProgress.Message}",
                             stepProgressPercentage));
+                    progress.Report(progressModel);
                     step.StepState = StepState.Skipped;
                 }
             };
-            
+
             progressModel.UpdateStep(step,
                 ($"Validating step {step}",
                     stepProgressPercentage));
+            progress.Report(progressModel);
             var validationContext = new OperationValidationContext(externalDependencyResolver, step, context);
-            
+
             step.ValidateOperation(validationContext);
-            if (step.StepState is not StepState.Running and not StepState.Skipped or not StepState.Failed)
+            var results = validationContext.GetResults();
+            if (results.Any(x => !x.CanExecute))
             {
-                step.StepState = StepState.Running;
-                await step.ExecuteAsync(context, stepProgress, stepCancellationTokenSource.Token);
+                step.StepState = StepState.Skipped;
+                progressModel.UpdateStep(step,
+                    ($"Skipping step {step}, reasons: {string.Join(",", results.Where(x => !string.IsNullOrEmpty(x.Message)).Select(x => x.Message))}",
+                        stepProgressPercentage));
+                continue;
             }
+
+            step.StepState = StepState.Running;
+            progressModel.Message = "Executing step " + step.StepName;
+            progress.Report(progressModel);
+            await step.ExecuteAsync(context, stepProgress, stepCancellationTokenSource.Token);
+
 
             return OperationState.Success;
         }

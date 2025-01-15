@@ -1,4 +1,5 @@
-﻿using Bdziam.ExternalDependencyResolver;
+﻿using System.ComponentModel.DataAnnotations;
+using Bdziam.ExternalDependencyResolver;
 using BdziamPak.Operations.Context;
 
 namespace BdziamPak.Operations.Steps.Validation;
@@ -13,20 +14,7 @@ public class OperationValidationContext(ExternalDependencyResolver externalDepen
         _conditions.Add(conditionInstance);
         return this;
     }
-    
-    public bool CanExecute(IProgress<ConditionValidationProgress> progress)
-    {
-        foreach (var condition in _conditions)
-        {
-            var result = condition.Validate(step, context);
-            progress.Report(result);
-            if (!result.CanExecute)
-            {
-                return false;
-            }
-        }
 
-        return true;
-    }
+    public IEnumerable<ConditionValidationResult> GetResults() => _conditions.Select(x => x.Validate(step, context));
 
 }

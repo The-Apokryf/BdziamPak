@@ -11,14 +11,14 @@ public class HasMetadataCondition : IStepExecutionCondition
         _metadataKeys.AddRange(metadataKeys);
     }
     
-    public ConditionValidationProgress Validate(BdziamPakOperationStep step, IValidationContext context)
+    public ConditionValidationResult Validate(BdziamPakOperationStep step, IValidationContext context)
     {
-        if(_metadataKeys.Count > 0)
+        if(_metadataKeys.Count == 0)
         {
-            return new ConditionValidationProgress(false, "At least one metadata key is required in condition. This is a developer error.");
+            return new ConditionValidationResult(false, "At least one metadata key is required in condition. This is a developer error.");
         }
 
         var missingKeys = _metadataKeys.Where(k => !context.HasMetadata(k))?.ToArray() ?? [];
-        return missingKeys?.Any() ?? false? new ConditionValidationProgress(false, $"Metadata with key(s) [{string.Join(", ",missingKeys)}] is missing.") : true;
+        return missingKeys?.Any() ?? false? new ConditionValidationResult(false, $"Metadata with key(s) [{string.Join(", ",missingKeys)}] is missing.") : new ConditionValidationResult(true);
     }
 }
