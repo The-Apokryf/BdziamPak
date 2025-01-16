@@ -53,7 +53,7 @@ public class GitService
                 var checkoutOptions = new CheckoutOptions();
                 checkoutOptions.OnCheckoutProgress = (path, completedSteps, totalSteps) =>
                 {
-                    cloneProgress.CheckoutProgress = completedSteps / Math.Max(totalSteps, 1);
+                    cloneProgress.CheckoutProgress = GetProgress(completedSteps, totalSteps);
                     cloneProgress.Path = path;
                     progress.Report(cloneProgress);
                 };
@@ -86,13 +86,13 @@ public class GitService
         options.OnCheckoutProgress = (path, completedSteps, totalSteps) =>
         {
             cloneProgress.Message = "Checking out files...";
-            cloneProgress.CheckoutProgress = completedSteps / Math.Max(totalSteps, 1);
+            cloneProgress.CheckoutProgress = GetProgress(completedSteps, totalSteps);
             cloneProgress.Path = path;
             progress.Report(cloneProgress);
         };
         options.FetchOptions.OnTransferProgress = (transferProgress) =>
         {
-            cloneProgress.FetchProgress = transferProgress.ReceivedObjects / Math.Max(transferProgress.TotalObjects, 1);
+            cloneProgress.FetchProgress =  GetProgress(transferProgress.ReceivedObjects, transferProgress.TotalObjects);
             cloneProgress.Message = $"Transferring objects... ({transferProgress.ReceivedBytes} bytes received)";
             progress.Report(cloneProgress);
             
@@ -112,6 +112,11 @@ public class GitService
                 };
 
         return options;
+    }
+
+    private int GetProgress(int current, int total)
+    {
+        return (current / Math.Max(total, 1) * 100);
     }
 
     /// <summary>
