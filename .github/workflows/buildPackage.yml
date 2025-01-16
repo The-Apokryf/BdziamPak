@@ -24,13 +24,20 @@ jobs:
         dotnet-version: 9.0.x
     - name: Setup GitVersion
       run: dotnet tool install GitVersion.Tool --global --add-source https://api.nuget.org/v3/index.json
-    - name: RunGitVersion
-      working-directory: ./src/BdziamPak
-      run: dotnet-gitversion /updateprojectfiles /showconfig /config ../../GitVersion.yml
+    - name: Run GitVersion on BdziamPak
+      working-directory: ./src/
+      run: dotnet-gitversion /updateprojectfiles /showconfig /config ../GitVersion.yml
     - name: Publish Package
       uses: Jacup/publish-nuget@v2.6.0
       with:
         PROJECT_FILE_PATH: ./src/BdziamPak/BdziamPak.csproj
+        TAG_COMMIT: false
+        PACKAGE_NAME: Bdziam.ExternalDependencyResolver
+        NUGET_KEY: ${{secrets.NUGET_PUSHKEY}}
+    - name: Publish Package
+      uses: Jacup/publish-nuget@v2.6.0
+      with:
+        PROJECT_FILE_PATH: ./src/BdziamPak.Spectre/BdziamPak.Spectre.csproj
         TAG_COMMIT: false
         PACKAGE_NAME: Bdziam.ExternalDependencyResolver
         NUGET_KEY: ${{secrets.NUGET_PUSHKEY}}
