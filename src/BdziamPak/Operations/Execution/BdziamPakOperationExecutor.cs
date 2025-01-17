@@ -23,11 +23,12 @@ public class BdziamPakOperationExecutor(Sources.Sources sources, BdziamPakDirect
     /// <param name="progress">The progress reporter for the operation.</param>
     /// <param name="ct">The cancellation token to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task<OperationState> ExecuteOperation(BdziamPakRequest requestedBdziamPak, BdziamPakOperation operation, IProgress<BdziamPakOperationProgress> progress, CancellationToken ct = default)
+    public async Task ExecuteOperation(BdziamPakRequest requestedBdziamPak, BdziamPakOperation operation, IProgress<BdziamPakOperationProgress> progress, CancellationToken ct = default)
     {
         ct.Register(() => _cancellationTokenSource.Cancel());
         var progressModel = new BdziamPakOperationProgress();
         progressModel.Message = $"Executing operation {operation.OperationName}";
+        progressModel.CurrentOperationState = OperationState.Started;
         progressModel.InitSteps(operation.Steps);
 
         progress.Report(progressModel);
@@ -39,8 +40,9 @@ public class BdziamPakOperationExecutor(Sources.Sources sources, BdziamPakDirect
         if (bdziamPak == null)
         {
             progressModel.Message = "Requested bdziampak not found";
+            progressModel.CurrentOperationState = OperationState.Failed;
             progress.Report(progressModel);
-            return OperationState.Failed;
+            return;
         }
 
         var context = new BdziamPakOperationContext(operation)
@@ -52,9 +54,13 @@ public class BdziamPakOperationExecutor(Sources.Sources sources, BdziamPakDirect
 
         foreach (var step in operation.Steps)
         {
+            
             var stepProgressPercentage = 0;
             var stepProgress = new Progress<StepProgress>();
+            
             progressModel.UpdateStep(step, ($"Executing step {step.StepName}", stepProgressPercentage));
+            progressModel.CurrentOperationState = OperationState.Running;
+            progress.Report(progressModel);
             var stepCancellationTokenSource = new CancellationTokenSource();
             _cancellationTokenSource.Token.Register(() => stepCancellationTokenSource.Cancel());
 
@@ -64,8 +70,8 @@ public class BdziamPakOperationExecutor(Sources.Sources sources, BdziamPakDirect
 
                 await stepCancellationTokenSource.CancelAsync();
                 progressModel.Message = "Operation cancelled";
+                progressModel.CurrentOperationState = OperationState.Failed;
                 progress.Report(progressModel);
-                return OperationState.Failed;
             }
 
             stepProgress.ProgressChanged += (sender, args) =>
@@ -88,8 +94,8 @@ public class BdziamPakOperationExecutor(Sources.Sources sources, BdziamPakDirect
                     progressModel.UpdateStep(step,
                         ($"Cannot execute step {step}, Details: {conditionValidationProgress.Message}",
                             stepProgressPercentage));
-                    progress.Report(progressModel);
                     step.StepState = StepState.Skipped;
+                    progress.Report(progressModel);
                 }
             };
 
@@ -114,12 +120,14 @@ public class BdziamPakOperationExecutor(Sources.Sources sources, BdziamPakDirect
             progressModel.Message = "Executing step " + step.StepName;
             progress.Report(progressModel);
             await step.ExecuteAsync(context, stepProgress, stepCancellationTokenSource.Token);
-
-
-            return OperationState.Success;
+            progressModel.Message = "Completed step " + step.StepName;
+            step.StepState = StepState.Success;
+            progress.Report(progressModel);
+          
         }
-
-        return OperationState.Success;
+        progressModel.Message = "Operation Completed";
+        progressModel.CurrentOperationState = OperationState.Success;
+        progress.Report(progressModel);
     }
 
     /// <summary>

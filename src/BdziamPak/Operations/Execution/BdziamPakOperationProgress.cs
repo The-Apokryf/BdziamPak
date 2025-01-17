@@ -6,8 +6,9 @@ namespace BdziamPak.Operations.Execution;
 
 public class BdziamPakOperationProgress
 {
+    public OperationState CurrentOperationState { get; set; }
     public List<BdziamPakStepProgress> Steps { get; set; } = new();
-    public int Progress => Steps.FindIndex(x => x.State == StepState.Running) + 1 / Steps.Count;
+    public int Progress => (Steps.FindIndex(x => x.State == StepState.Running) + 1 / Steps.Count)*100;
     public string Message { get; set; }
 
     public void InitSteps(IEnumerable<BdziamPakOperationStep> steps)

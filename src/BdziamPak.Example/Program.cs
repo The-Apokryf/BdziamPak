@@ -108,5 +108,4 @@ AnsiConsole.Progress()
        
     });
         
-// Act
-var state = await executor.ExecuteOperation("TestAuthor.testPak@1.0.0", operation, progress);
+//var state = await executor.ExecuteOperation("TestAuthor.testPak@1.0.0", operation, progress);
