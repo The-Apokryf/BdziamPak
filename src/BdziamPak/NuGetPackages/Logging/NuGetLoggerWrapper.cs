@@ -6,13 +6,13 @@ using LogLevel = NuGet.Common.LogLevel;
 namespace BdziamPak.NuGetPackages.Logging;
 
 /// <summary>
-/// A wrapper for the Microsoft.Extensions.Logging.ILogger to adapt it for use with NuGet's ILogger.
+///     A wrapper for the Microsoft.Extensions.Logging.ILogger to adapt it for use with NuGet's ILogger.
 /// </summary>
 /// <param name="logger">The Microsoft.Extensions.Logging.ILogger instance to wrap.</param>
 public class NuGetLoggerWrapper(Microsoft.Extensions.Logging.ILogger logger) : ILogger
 {
     /// <summary>
-    /// Logs a debug message.
+    ///     Logs a debug message.
     /// </summary>
     /// <param name="data">The message to log.</param>
     public void LogDebug(string data)
@@ -21,7 +21,7 @@ public class NuGetLoggerWrapper(Microsoft.Extensions.Logging.ILogger logger) : I
     }
 
     /// <summary>
-    /// Logs a verbose message.
+    ///     Logs a verbose message.
     /// </summary>
     /// <param name="data">The message to log.</param>
     public void LogVerbose(string data)
@@ -30,7 +30,7 @@ public class NuGetLoggerWrapper(Microsoft.Extensions.Logging.ILogger logger) : I
     }
 
     /// <summary>
-    /// Logs an informational message.
+    ///     Logs an informational message.
     /// </summary>
     /// <param name="data">The message to log.</param>
     public void LogInformation(string data)
@@ -39,7 +39,7 @@ public class NuGetLoggerWrapper(Microsoft.Extensions.Logging.ILogger logger) : I
     }
 
     /// <summary>
-    /// Logs a minimal message.
+    ///     Logs a minimal message.
     /// </summary>
     /// <param name="data">The message to log.</param>
     public void LogMinimal(string data)
@@ -48,7 +48,7 @@ public class NuGetLoggerWrapper(Microsoft.Extensions.Logging.ILogger logger) : I
     }
 
     /// <summary>
-    /// Logs a warning message.
+    ///     Logs a warning message.
     /// </summary>
     /// <param name="data">The message to log.</param>
     public void LogWarning(string data)
@@ -57,7 +57,7 @@ public class NuGetLoggerWrapper(Microsoft.Extensions.Logging.ILogger logger) : I
     }
 
     /// <summary>
-    /// Logs an error message.
+    ///     Logs an error message.
     /// </summary>
     /// <param name="data">The message to log.</param>
     public void LogError(string data)
@@ -66,7 +66,7 @@ public class NuGetLoggerWrapper(Microsoft.Extensions.Logging.ILogger logger) : I
     }
 
     /// <summary>
-    /// Logs an informational summary message.
+    ///     Logs an informational summary message.
     /// </summary>
     /// <param name="data">The message to log.</param>
     public void LogInformationSummary(string data)
@@ -75,7 +75,7 @@ public class NuGetLoggerWrapper(Microsoft.Extensions.Logging.ILogger logger) : I
     }
 
     /// <summary>
-    /// Logs a message with the specified log level.
+    ///     Logs a message with the specified log level.
     /// </summary>
     /// <param name="level">The log level.</param>
     /// <param name="data">The message to log.</param>
@@ -108,7 +108,7 @@ public class NuGetLoggerWrapper(Microsoft.Extensions.Logging.ILogger logger) : I
     }
 
     /// <summary>
-    /// Asynchronously logs a message with the specified log level.
+    ///     Asynchronously logs a message with the specified log level.
     /// </summary>
     /// <param name="level">The log level.</param>
     /// <param name="data">The message to log.</param>
@@ -120,7 +120,7 @@ public class NuGetLoggerWrapper(Microsoft.Extensions.Logging.ILogger logger) : I
     }
 
     /// <summary>
-    /// Logs a message.
+    ///     Logs a message.
     /// </summary>
     /// <param name="message">The log message.</param>
     public void Log(ILogMessage message)
@@ -129,7 +129,7 @@ public class NuGetLoggerWrapper(Microsoft.Extensions.Logging.ILogger logger) : I
     }
 
     /// <summary>
-    /// Asynchronously logs a message.
+    ///     Asynchronously logs a message.
     /// </summary>
     /// <param name="message">The log message.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>

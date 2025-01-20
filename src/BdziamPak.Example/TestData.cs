@@ -1,14 +1,12 @@
-﻿using BdziamPak.PackageModel;
-
-namespace BdziamPak.Tests;
+﻿namespace BdziamPak.Tests;
 
 /// <summary>
-/// Provides test data for BdziamPak unit tests.
+///     Provides test data for BdziamPak unit tests.
 /// </summary>
 public static class TestData
 {
     /// <summary>
-    /// Gets the metadata representing a good BdziamPak.
+    ///     Gets the metadata representing a good BdziamPak.
     /// </summary>
     public static object GoodMetadata => new
     {
@@ -34,7 +32,7 @@ public static class TestData
     };
 
     /// <summary>
-    /// Gets the metadata representing a bad BdziamPak.
+    ///     Gets the metadata representing a bad BdziamPak.
     /// </summary>
     public static object BadMetadata => new
     {
@@ -54,7 +52,7 @@ public static class TestData
     };
 
     /// <summary>
-    /// Gets the source index data.
+    ///     Gets the source index data.
     /// </summary>
     public static object SourceIndex => new
     {

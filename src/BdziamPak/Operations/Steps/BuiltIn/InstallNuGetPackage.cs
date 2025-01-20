@@ -1,7 +1,6 @@
 ﻿using BdziamPak.Directory;
 using BdziamPak.NuGetPackages.Dependencies;
 using BdziamPak.NuGetPackages.Download;
-using BdziamPak.NuGetPackages.Download.Model;
 using BdziamPak.NuGetPackages.Unpack;
 using BdziamPak.Operations.Context;
 using BdziamPak.Operations.Reporting.Progress;
@@ -16,7 +15,7 @@ using NuGet.Versioning;
 namespace BdziamPak.Operations.Steps.BuiltIn;
 
 /// <summary>
-/// Represents a step in the resolving process that resolves NuGet dependencies for the package.
+///     Represents a step in the resolving process that resolves NuGet dependencies for the package.
 /// </summary>
 /// <param name="dependencyResolver">The service used to resolve NuGet dependencies.</param>
 /// <param name="nugetDownloadService">The service used to download NuGet packages.</param>
@@ -28,20 +27,22 @@ public class InstallNuGetPackage(
     NuGetUnpackService unpackService,
     BdziamPakDirectory bdziamPakDirectory) : BdziamPakOperationStep
 {
-    /// <summary>
-    /// Gets the name of the step.
-    /// </summary>
-    public override string StepName => "ResolveNuGetDependencies";
-
     private const string NuGetMetadataKey = "NuGetPackage";
+
+    /// <summary>
+    ///     Gets the name of the step.
+    /// </summary>
+    public override string StepName => "Install NuGet package";
+
     public override void ValidateOperation(OperationValidationContext context)
     {
         context.AddCondition<HasMetadataCondition>(condition => condition.RequireMetadata(NuGetMetadataKey));
     }
 
-    public override async Task ExecuteAsync(IExecuteOperationContext context, IProgress<StepProgress> progress, CancellationToken cancellationToken = default)
+    public override async Task ExecuteAsync(IExecuteOperationContext context, StepProgress progress,
+        CancellationToken cancellationToken = default)
     {
-       progress.Report(("Resolving NuGet Dependencies...", 0, new NuGetDownloadProgress("Starting download", 0)));
+        progress.UpdateAndReport("Resolving NuGet Dependencies...", StepState.Running);
 
         var metadata = context.BdziamPakMetadata;
         var repository = new SourceRepositoryProvider(
@@ -49,40 +50,27 @@ public class InstallNuGetPackage(
             Repository.Provider.GetCoreV3()
         ).GetRepositories().First();
         var nugetDependency = context.GetMetadata<BdziamPakNuGetDependency>("NuGetPackage")!;
-        var packages = await dependencyResolver.LoadPackageDependenciesAsync(
+        var packages = (await dependencyResolver.LoadPackageDependenciesAsync(
             nugetDependency.PackageId,
             NuGetVersion.Parse(nugetDependency.PackageVersion),
             repository
-        );
+        )).ToList();
 
+
+        progress.Indeterminate("Packages to resolve: ", packages.Count.ToString());
         foreach (var package in packages)
         {
-            var nugetProgress = new Progress<NuGetDownloadProgress>();
             await nugetDownloadService.DownloadPackageAsync(
                 package.Id,
                 package.Version.ToString(),
                 bdziamPakDirectory.CacheDirectory.FullName,
-                nugetProgress
+                progress
             );
 
-            var currentPercent = 0;
-            
-            nugetProgress.ProgressChanged += (sender, downloadProgress) =>
-            {
-                currentPercent = downloadProgress.Percent ?? 0;
-                progress.Report(("Downloading NuGet Package...", currentPercent, downloadProgress));
-            };
-
-            var unpackProgress = new Progress<string>();
-            unpackProgress.ProgressChanged += (sender, s) =>
-            {
-                progress.Report(($"Unpacking ({s})", currentPercent, s));
-            };
             var unpackPath = Path.Combine(context.ResolveDirectory.FullName, "Lib");
-            await unpackService.UnpackPackageAsync(unpackPath, package, unpackProgress, cancellationToken);
+            await unpackService.UnpackPackageAsync(unpackPath, package, progress, cancellationToken);
         }
 
         StepState = StepState.Success;
     }
-
 }

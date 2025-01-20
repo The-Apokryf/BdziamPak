@@ -2,24 +2,25 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace BdziamPak.PackageModel;
+
 /// <summary>
-/// Versions of given BdziamPak
+///     Versions of given BdziamPak
 /// </summary>
 public class BdziamPakVersion
 {
     /// <summary>
-    /// Gets or sets the version of the BdziamPak.
+    ///     Gets or sets the version of the BdziamPak.
     /// </summary>
     public string Version { get; set; }
 
     /// <summary>
-    /// Gets or sets additional metadata for the BdziamPak.
+    ///     Gets or sets additional metadata for the BdziamPak.
     /// </summary>
     [JsonExtensionData]
     public Dictionary<string, JsonElement> Metadata { get; set; } = new();
 
     /// <summary>
-    /// Gets the metadata value for the specified key.
+    ///     Gets the metadata value for the specified key.
     /// </summary>
     /// <typeparam name="T">The type of the metadata value.</typeparam>
     /// <param name="key">The key of the metadata.</param>
@@ -33,7 +34,7 @@ public class BdziamPakVersion
     }
 
     /// <summary>
-    /// Determines whether the metadata contains the specified key.
+    ///     Determines whether the metadata contains the specified key.
     /// </summary>
     /// <param name="key">The key to check.</param>
     /// <returns>true if the metadata contains the key; otherwise, false.</returns>

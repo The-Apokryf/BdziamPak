@@ -7,18 +7,14 @@ public class BdziamPakRequest(string bdziamPakId, string version)
 
     public override string ToString()
     {
-        return $"{BdziamPakId}@{Version}";;
+        return $"{BdziamPakId}@{Version}";
+        ;
     }
 
     public static implicit operator BdziamPakRequest(string value)
     {
         var valueSplit = value.Split('@');
-        if (valueSplit.Length != 2)
-        {
-            throw new ArgumentException("Invalid BdziamPak request format.");
-        }
-        return new BdziamPakRequest(valueSplit.First(),valueSplit.Last());
+        if (valueSplit.Length != 2) throw new ArgumentException("Invalid BdziamPak request format.");
+        return new BdziamPakRequest(valueSplit.First(), valueSplit.Last());
     }
-    
-    
 }

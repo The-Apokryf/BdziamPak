@@ -5,12 +5,13 @@ using FastEndpoints;
 namespace BdziamPak.PakRepoApi.Endpoints;
 
 /// <summary>
-/// Endpoint for registering BdziamPak metadata.
+///     Endpoint for registering BdziamPak metadata.
 /// </summary>
-public class RegisterBdziamPakEndpoint(BdziamPakIndexService indexService, IConfiguration configuration) : Endpoint<BdziamPakMetadata>
+public class RegisterBdziamPakEndpoint(BdziamPakIndexService indexService, IConfiguration configuration)
+    : Endpoint<BdziamPakMetadata>
 {
     /// <summary>
-    /// Configures the endpoint.
+    ///     Configures the endpoint.
     /// </summary>
     public override void Configure()
     {
@@ -21,7 +22,7 @@ public class RegisterBdziamPakEndpoint(BdziamPakIndexService indexService, IConf
     }
 
     /// <summary>
-    /// Handles the incoming request to register BdziamPak metadata.
+    ///     Handles the incoming request to register BdziamPak metadata.
     /// </summary>
     /// <param name="req">The BdziamPak metadata to be registered.</param>
     /// <param name="ct">Cancellation token to cancel the operation.</param>
@@ -36,6 +37,7 @@ public class RegisterBdziamPakEndpoint(BdziamPakIndexService indexService, IConf
             await SendUnauthorizedAsync(ct);
             return;
         }
+
         // Registers the metadata using the index service.
         await indexService.RegisterMetadataAsync(req);
         // Sends an OK response.

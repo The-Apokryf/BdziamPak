@@ -1,11 +1,11 @@
 ﻿using System.Text.Json;
 using BdziamPak.PackageModel;
 using BdziamPak.Sources.Model;
-using Directory = System.IO.Directory;
+
 namespace BdziamPak.PakRepoApi.Services;
 
 /// <summary>
-/// Service for managing BdziamPak index operations.
+///     Service for managing BdziamPak index operations.
 /// </summary>
 public class BdziamPakIndexService
 {
@@ -15,7 +15,7 @@ public class BdziamPakIndexService
     private readonly BdziamPakSourceIndex _source;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="BdziamPakIndexService"/> class.
+    ///     Initializes a new instance of the <see cref="BdziamPakIndexService" /> class.
     /// </summary>
     /// <param name="dataDirectory">The directory where the index file is stored.</param>
     public BdziamPakIndexService(string dataDirectory)
@@ -38,7 +38,7 @@ public class BdziamPakIndexService
     }
 
     /// <summary>
-    /// Registers the given metadata.
+    ///     Registers the given metadata.
     /// </summary>
     /// <param name="metadata">The metadata to register.</param>
     public async Task RegisterMetadataAsync(BdziamPakMetadata metadata)
@@ -56,7 +56,7 @@ public class BdziamPakIndexService
     }
 
     /// <summary>
-    /// Removes the metadata with the specified ID and version.
+    ///     Removes the metadata with the specified ID and version.
     /// </summary>
     /// <param name="bdziamPakId">The ID of the metadata to remove.</param>
     /// <param name="version">The version of the metadata to remove.</param>
@@ -83,7 +83,7 @@ public class BdziamPakIndexService
     }
 
     /// <summary>
-    /// Edits the source with the new name and description.
+    ///     Edits the source with the new name and description.
     /// </summary>
     /// <param name="newName">The new name for the source.</param>
     /// <param name="newDescription">The new description for the source.</param>
@@ -103,7 +103,7 @@ public class BdziamPakIndexService
     }
 
     /// <summary>
-    /// Saves the index to the file.
+    ///     Saves the index to the file.
     /// </summary>
     private async Task SaveIndexAsync()
     {
@@ -112,7 +112,7 @@ public class BdziamPakIndexService
     }
 
     /// <summary>
-    /// Gets the path to the index file.
+    ///     Gets the path to the index file.
     /// </summary>
     /// <returns>The path to the index file.</returns>
     public string GetIndexFilePath()

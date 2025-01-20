@@ -6,28 +6,28 @@ namespace BdziamPak.Directory;
 ///     Manages specified BdziamPak Directory
 /// </summary>
 /// <remarks>
-/// ```plaintext
-/// Directory Structure
-/// │.{directoryName}/
-/// ├── Sources/                     # Directory for files
-/// │   ├── Sources.json             # File that contains all Sources registered
-/// │   ├── {SourceName}.json        # Cached index data for each source
-/// ├── Cache/                       # Cache for downloaded NuGet packages
-/// ├── Paks/                        # Extracted BdziamPaks
-/// │   ├── {BdziamPakId}@{Version}/ #  folder for a specific BdziamPak (contains cloned repo from git and Lib folder
-/// with extracted dependencies
-/// │       ├── Lib/            # Contains extracted nuget packages assigned to a given BdziamPak
-/// │       ├── (other git contents)           # Contains extracted nuget packages assigned to a given BdziamPak
-/// │       ├── pak.json      # Contains Metadata about given Pak
-/// ├── GitCredentials.json # Contains Git credentials
-/// ```
+///     ```plaintext
+///     Directory Structure
+///     │.{directoryName}/
+///     ├── Sources/                     # Directory for files
+///     │   ├── Sources.json             # File that contains all Sources registered
+///     │   ├── {SourceName}.json        # Cached index data for each source
+///     ├── Cache/                       # Cache for downloaded NuGet packages
+///     ├── Paks/                        # Extracted BdziamPaks
+///     │   ├── {BdziamPakId}@{Version}/ #  folder for a specific BdziamPak (contains cloned repo from git and Lib folder
+///     with extracted dependencies
+///     │       ├── Lib/            # Contains extracted nuget packages assigned to a given BdziamPak
+///     │       ├── (other git contents)           # Contains extracted nuget packages assigned to a given BdziamPak
+///     │       ├── pak.json      # Contains Metadata about given Pak
+///     ├── GitCredentials.json # Contains Git credentials
+///     ```
 /// </remarks>
 public class BdziamPakDirectory
 {
     private readonly IServiceProvider _serviceProvider;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="BdziamPakDirectory"/> class.
+    ///     Initializes a new instance of the <see cref="BdziamPakDirectory" /> class.
     /// </summary>
     /// <param name="bdziamPakConfiguration">The configuration for BdziamPak.</param>
     /// <param name="serviceProvider">The service provider.</param>
