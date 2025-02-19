@@ -10,7 +10,7 @@
         <PackageId>BdziamPak</PackageId>
         <Title>Pluggable Package Manager Library</Title>
         <Authors>Cybernomad</Authors>
-        <Description>BdziamPak is a C# library that provides a mechanism to resolve dependencies for a given metadata using customizable resolvement process</Description>      
+        <Description>BdziamPak is a C# library that provides a mechanism to resolve dependencies for a given metadata using customizable resolvement process</Description>
         <Copyright>2024 Piotr Mikstacki @ CyberNomad</Copyright>
         <PackageProjectUrl>https://github.com/pmikstacki/BdziamPak</PackageProjectUrl>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -22,11 +22,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="..\..\README.md" Pack="true" PackagePath="\" />
-        <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
+        <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
+        <None Include="..\..\LICENSE" Pack="true" PackagePath="\"/>
         <None Include="icon.png" Pack="true" PackagePath="\"/>
     </ItemGroup>
-    
+
     <ItemGroup>
         <PackageReference Include="Bdziam.ExternalDependencyResolver" Version="0.0.9"/>
         <PackageReference Include="Downloader" Version="3.3.1"/>

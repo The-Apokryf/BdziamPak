@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 namespace BdziamPak.Sources;
 
 /// <summary>
-/// Manages the sources for BdziamPak packages, including caching, loading, and searching.
+///     Manages the sources for BdziamPak packages, including caching, loading, and searching.
 /// </summary>
 public class Sources : IDisposable
 {
@@ -24,7 +24,7 @@ public class Sources : IDisposable
     private readonly DirectoryInfo _sourcesDirectory;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Sources"/> class.
+    ///     Initializes a new instance of the <see cref="Sources" /> class.
     /// </summary>
     /// <param name="bdziamPakDirectory">The directory containing the sources.</param>
     /// <param name="logger">The logger instance.</param>
@@ -43,7 +43,7 @@ public class Sources : IDisposable
     }
 
     /// <summary>
-    /// Disposes the resources used by the <see cref="Sources"/> instance.
+    ///     Disposes the resources used by the <see cref="Sources" /> instance.
     /// </summary>
     public void Dispose()
     {
@@ -53,7 +53,7 @@ public class Sources : IDisposable
     }
 
     /// <summary>
-    /// Loads a source file asynchronously.
+    ///     Loads a source file asynchronously.
     /// </summary>
     /// <param name="file">The file to load.</param>
     /// <returns>The loaded source index, or null if an error occurs.</returns>
@@ -63,7 +63,8 @@ public class Sources : IDisposable
         try
         {
             await using var stream = file.OpenRead();
-            var source = await JsonSerializer.DeserializeAsync<BdziamPakSourceIndex>(stream, _jsonOptions, cancellationToken: cancellationToken);
+            var source =
+                await JsonSerializer.DeserializeAsync<BdziamPakSourceIndex>(stream, _jsonOptions, cancellationToken);
             _logger.LogDebug("Successfully loaded source file: {FilePath}, Source Name: {SourceName}",
                 file.FullName, source?.Name ?? "null");
             return source;
@@ -76,7 +77,7 @@ public class Sources : IDisposable
     }
 
     /// <summary>
-    /// Refreshes the cache if needed.
+    ///     Refreshes the cache if needed.
     /// </summary>
     private async Task RefreshCacheIfNeededAsync(CancellationToken cancellationToken = default)
     {
@@ -125,7 +126,7 @@ public class Sources : IDisposable
                     return;
                 }
 
-                var source = await LoadSourceFileAsync(file, cancellationToken: cancellationToken);
+                var source = await LoadSourceFileAsync(file, cancellationToken);
                 if (source != null)
                 {
                     _logger.LogDebug("Updated cache for source: {SourceName}", sourceName);
@@ -143,10 +144,11 @@ public class Sources : IDisposable
     }
 
     /// <summary>
-    /// Lists the sources asynchronously.
+    ///     Lists the sources asynchronously.
     /// </summary>
     /// <returns>A list of source indexes.</returns>
-    public async Task<IReadOnlyList<BdziamPakSourceIndex>> ListSourcesAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<BdziamPakSourceIndex>> ListSourcesAsync(
+        CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Listing sources, initiating cache refresh");
         await RefreshCacheIfNeededAsync();
@@ -190,7 +192,7 @@ public class Sources : IDisposable
     }
 
     /// <summary>
-    /// Registers a new source from a URL asynchronously.
+    ///     Registers a new source from a URL asynchronously.
     /// </summary>
     /// <param name="url">The URL of the source to register.</param>
     public async Task RegisterSourceAsync(string url, CancellationToken cancellationToken = default)
@@ -225,7 +227,7 @@ public class Sources : IDisposable
     }
 
     /// <summary>
-    /// Deletes a source by name.
+    ///     Deletes a source by name.
     /// </summary>
     /// <param name="name">The name of the source to delete.</param>
     public void DeleteSource(string name)
@@ -249,7 +251,7 @@ public class Sources : IDisposable
     }
 
     /// <summary>
-    /// Searches for packages matching the search term asynchronously.
+    ///     Searches for packages matching the search term asynchronously.
     /// </summary>
     /// <param name="searchTerm">The term to search for.</param>
     /// <param name="comparison">The string comparison method to use.</param>

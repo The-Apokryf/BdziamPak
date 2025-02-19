@@ -14,10 +14,10 @@
         <PackageReference Include="coverlet.collector" Version="6.0.2"/>
         <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0"/>
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.0"/>
-        <PackageReference Include="Spectre.Console" Version="0.49.1" />
     </ItemGroup>
-    
+
     <ItemGroup>
+        <ProjectReference Include="..\BdziamPak.Spectre\BdziamPak.Spectre.csproj"/>
         <ProjectReference Include="..\BdziamPak\BdziamPak.csproj"/>
     </ItemGroup>
 

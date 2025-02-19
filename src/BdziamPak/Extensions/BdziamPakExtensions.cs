@@ -2,12 +2,10 @@
 using BdziamPak.Configuration;
 using BdziamPak.Directory;
 using BdziamPak.Git;
-using BdziamPak.NuGetPackages;
 using BdziamPak.NuGetPackages.Cache;
 using BdziamPak.NuGetPackages.Dependencies;
 using BdziamPak.NuGetPackages.Download;
 using BdziamPak.NuGetPackages.Unpack;
-using BdziamPak.Operations;
 using BdziamPak.Operations.Execution;
 using BdziamPak.Operations.Factory;
 using Downloader;
@@ -16,15 +14,15 @@ using Microsoft.Extensions.DependencyInjection;
 namespace BdziamPak.Extensions;
 
 /// <summary>
-/// Provides extension methods for configuring BdziamPak services.
+///     Provides extension methods for configuring BdziamPak services.
 /// </summary>
 public static class BdziamPakExtensions
 {
     /// <summary>
-    /// Adds BdziamPak services to the specified <see cref="IServiceCollection"/>.
+    ///     Adds BdziamPak services to the specified <see cref="IServiceCollection" />.
     /// </summary>
     /// <param name="services">The service collection to add the services to.</param>
-    /// <param name="configuration">The configuration action to configure <see cref="BdziamPakConfiguration"/>.</param>
+    /// <param name="configuration">The configuration action to configure <see cref="BdziamPakConfiguration" />.</param>
     /// <param name="customResolveProcessService">An optional custom resolve process service.</param>
     /// <returns>The service collection with the added services.</returns>
     public static IServiceCollection AddBdziamPak(this IServiceCollection services,
@@ -47,7 +45,7 @@ public static class BdziamPakExtensions
             services.AddSingleton<IOperationFactory, BuiltInOperationsFactory>();
 
         services.AddSingleton<BdziamPakOperationExecutor>();
-        
+
         services.AddExternalDependencyResolver();
         services.AddSingleton<DownloadService>(sp =>
             new DownloadService(new DownloadConfiguration { ParallelDownload = true, ParallelCount = 10 }));

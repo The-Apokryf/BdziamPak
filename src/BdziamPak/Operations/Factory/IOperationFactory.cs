@@ -2,5 +2,5 @@
 
 public interface IOperationFactory
 {
-   public BdziamPakOperation GetOperation(string operationName);
+    public BdziamPakOperation GetOperation(string operationName);
 }

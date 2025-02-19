@@ -5,15 +5,15 @@ using BdziamPak.Sources.Model;
 namespace BdziamPak.Client;
 
 /// <summary>
-/// Represents a client for interacting with the BdziamPak API.
-/// <param name="baseAddress">The base address of the BdziamPak API.</param>
+///     Represents a client for interacting with the BdziamPak API.
+///     <param name="baseAddress">The base address of the BdziamPak API.</param>
 /// </summary>
 public class BdziamPakClient(string baseAddress)
 {
     private readonly HttpClient _httpClient = new() { BaseAddress = new Uri(baseAddress) };
 
     /// <summary>
-    /// Registers metadata with the BdziamPak API.
+    ///     Registers metadata with the BdziamPak API.
     /// </summary>
     /// <param name="metadata">The metadata to register.</param>
     public async Task RegisterMetadataAsync(BdziamPakMetadata metadata)
@@ -23,7 +23,7 @@ public class BdziamPakClient(string baseAddress)
     }
 
     /// <summary>
-    /// Removes metadata from the BdziamPak API.
+    ///     Removes metadata from the BdziamPak API.
     /// </summary>
     /// <param name="bdziamPakId">The ID of the metadata to remove.</param>
     /// <param name="version">The version of the metadata to remove.</param>
@@ -37,7 +37,7 @@ public class BdziamPakClient(string baseAddress)
     }
 
     /// <summary>
-    /// Edits the source information in the BdziamPak API.
+    ///     Edits the source information in the BdziamPak API.
     /// </summary>
     /// <param name="newName">The new name for the source.</param>
     /// <param name="newDescription">The new description for the source.</param>
@@ -49,7 +49,7 @@ public class BdziamPakClient(string baseAddress)
     }
 
     /// <summary>
-    /// Gets the index from the BdziamPak API.
+    ///     Gets the index from the BdziamPak API.
     /// </summary>
     /// <returns>The BdziamPak source index.</returns>
     public async Task<BdziamPakSourceIndex> GetIndexAsync()

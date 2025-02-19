@@ -4,13 +4,14 @@ using FastEndpoints;
 namespace BdziamPak.PakRepoApi.Endpoints;
 
 /// <summary>
-/// Endpoint for editing a BdziamPak source.
+///     Endpoint for editing a BdziamPak source.
 /// </summary>
 /// <param name="indexService">Service for managing BdziamPak index.</param>
-public class EditBdziamPakSourceEndpoint(BdziamPakIndexService indexService, IConfiguration configuration) : EndpointWithoutRequest
+public class EditBdziamPakSourceEndpoint(BdziamPakIndexService indexService, IConfiguration configuration)
+    : EndpointWithoutRequest
 {
     /// <summary>
-    /// Configures the endpoint.
+    ///     Configures the endpoint.
     /// </summary>
     public override void Configure()
     {
@@ -19,7 +20,7 @@ public class EditBdziamPakSourceEndpoint(BdziamPakIndexService indexService, ICo
     }
 
     /// <summary>
-    /// Handles the request to edit a BdziamPak source.
+    ///     Handles the request to edit a BdziamPak source.
     /// </summary>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>A task representing the asynchronous operation.</returns>

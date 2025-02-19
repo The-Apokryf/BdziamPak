@@ -1,13 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Bdziam.ExternalDependencyResolver;
+﻿using Bdziam.ExternalDependencyResolver;
 using BdziamPak.Operations.Context;
 
 namespace BdziamPak.Operations.Steps.Validation;
 
-public class OperationValidationContext(ExternalDependencyResolver externalDependencyResolver, BdziamPakOperationStep step, BdziamPakOperationContext context)
+public class OperationValidationContext(
+    ExternalDependencyResolver externalDependencyResolver,
+    BdziamPakOperationStep step,
+    BdziamPakOperationContext context)
 {
     private readonly List<IStepExecutionCondition> _conditions = new();
-    public OperationValidationContext AddCondition<TCondition>(Action<TCondition>? configureCondition) where TCondition : IStepExecutionCondition
+
+    public OperationValidationContext AddCondition<TCondition>(Action<TCondition>? configureCondition)
+        where TCondition : IStepExecutionCondition
     {
         var conditionInstance = externalDependencyResolver.Resolve<TCondition>();
         configureCondition?.Invoke(conditionInstance);
@@ -15,6 +19,8 @@ public class OperationValidationContext(ExternalDependencyResolver externalDepen
         return this;
     }
 
-    public IEnumerable<ConditionValidationResult> GetResults() => _conditions.Select(x => x.Validate(step, context));
-
+    public IEnumerable<ConditionValidationResult> GetResults()
+    {
+        return _conditions.Select(x => x.Validate(step, context));
+    }
 }
